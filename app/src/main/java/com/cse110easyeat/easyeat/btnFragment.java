@@ -29,9 +29,20 @@ public class btnFragment extends Fragment {
     private static final int MIN_DISTANCE = 150;
     private final String TAG = "btnFragment";
 
+    public static TinderCard prevCard;
+
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
     private String apiResult;
+
+    public static void setLastCardInfo(TinderCard lastCard) {
+        prevCard = lastCard;
+    }
+
+    public static TinderCard getLastCardInfo() {
+        return prevCard;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -51,7 +62,6 @@ public class btnFragment extends Fragment {
                         .setRelativeScale(0.01f)
                         .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
                         .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view));
-
 //        for(Profile profile : Utils.loadProfiles(getActivity().getApplicationContext())){
 //            mSwipeView.addView(new TinderCard(mContext, profile, mSwipeView));
 //        }
@@ -80,12 +90,55 @@ public class btnFragment extends Fragment {
                 // Replace the contents of the container with the new fragment
                 ft.replace(R.id.mainFragment, new infoFragment());
 
-                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null);
+                getActivity().getSupportFragmentManager().beginTransaction();
+
+                // TODO: TRY CALLING THE GETCARD HERE TURN IT TO JSON, PASS THE JASON AS ARGS
+                // TODO: add on backstackchangedlistener |
+                ft.addToBackStack(null);
+                // or ft.add(R.id.your_placeholder, new FooFragment());
+                // Complete the changes added above
+                ft.commit();
+            }
+        });
+
+        view.findViewById(R.id.moreInfo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSwipeView.doSwipe(false);
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                // Replace the contents of the container with the new fragment
+                ft.replace(R.id.mainFragment, new infoFragment());
+
+
+                getActivity().getSupportFragmentManager().beginTransaction();
+
+                // TODO: TRY CALLING THE GETCARD HERE TURN IT TO JSON, PASS THE JASON AS ARGS
+                // TODO: add on backstackchangedlistener |
+                ft.addToBackStack(null);
                 // or ft.add(R.id.your_placeholder, new FooFragment());
                 // Complete the changes added above
                 ft.commit();
             }
         });
     }
+
+    // Overriding the methods to save instances of fragments
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        if (savedInstanceState != null) {
+//            // NEED TO LOAD THE ARRAY HERE
+//
+//            //Restore the fragment's state here
+//        }
+//    }
+//
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        //Save the fragment's state here
+//    }
+
 
 }

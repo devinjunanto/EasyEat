@@ -3,11 +3,13 @@
     <string name="EasyEat">navbar</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
     <style name="Theme.AppCompat">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
     <string name="app_name">EasyEat</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -35,5 +37,8 @@
 
     <string name="Open">navbar</string>
     <string name="Close">navbar</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

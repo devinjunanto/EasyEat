@@ -37,6 +37,7 @@ public class GooglePlacesAPIServices implements APIHandlerService {
             url += maxPrice;
         }
 
+        Log.d(TAG, "/****** API URL USED: " + url);
         return url;
     }
 

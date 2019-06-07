@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cse110easyeat.easyeat.R;
+import com.cse110easyeat.easyeat.btnFragment;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 import com.mindorks.placeholderview.annotations.Layout;
 import com.mindorks.placeholderview.annotations.Resolve;
@@ -42,14 +43,16 @@ public class TinderCard {
     @Resolve
     private void onResolved(){
         Glide.with(mContext).load(mProfile.getImageUrl()).into(profileImageView);
-        nameAgeTxt.setText("Name: " + mProfile.getName() + "\nRating: " + mProfile.getRestaurantRating());
-        locationNameTxt.setText("Distance: " + mProfile.getDistanceFromCurLoc());
+        nameAgeTxt.setText(mProfile.getName() + "\nRating: " + mProfile.getRestaurantRating());
+        locationNameTxt.setText("Price: " + mProfile.getPrice());
+//        btnFragment.setLastCardInfo(this);
     }
 
     @SwipeOut
     private void onSwipedOut(){
         Log.d("EVENT", "onSwipedOut");
         mSwipeView.addView(this);
+        btnFragment.setLastCardInfo(this);
     }
 
     @SwipeCancelState
@@ -70,5 +73,9 @@ public class TinderCard {
     @SwipeOutState
     private void onSwipeOutState(){
         Log.d("EVENT", "onSwipeOutState");
+    }
+
+    public Profile getmProfile() {
+        return mProfile;
     }
 }

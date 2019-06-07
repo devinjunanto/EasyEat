@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +40,7 @@ public class LoginActivity extends Activity {
     private ProgressDialog progressBar;
     private static final String TAG = "LoginActivity";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +48,7 @@ public class LoginActivity extends Activity {
 
         mAuth = FirebaseAuth.getInstance();
         progressBar = new ProgressDialog(this);
+
 
         loginButton = (Button) findViewById(R.id.loginBtn);
         emailField = (EditText) findViewById(R.id.login_emailid);
@@ -57,6 +62,7 @@ public class LoginActivity extends Activity {
                 boolean loginSuccess = false;
                 // Check for input
                 Log.d(TAG, "LOGIN BUTTON CLICKED");
+
                 if (emailField.getText().length() > 0 && passwordField.getText().length() > 0) {
                     String email = emailField.getText().toString();
                     String password = passwordField.getText().toString();
@@ -72,7 +78,11 @@ public class LoginActivity extends Activity {
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         if (user.isEmailVerified()) {
                                             progressBar.dismiss();
+                                            Intent returnIntent = new Intent();
+                                            returnIntent.putExtra("email", user.getEmail());
+                                            setResult(RESULT_OK, returnIntent);
                                             finish();
+
                                             //startActivity(new Intent(getApplicationContext(), inputFragment.class));
                                         } else {
                                             Toast.makeText(LoginActivity.this, "Please verify your email!", Toast.LENGTH_SHORT).show();
@@ -82,6 +92,7 @@ public class LoginActivity extends Activity {
                                     }
                                 }
                             });
+
                 }
             }
         });

@@ -1,5 +1,6 @@
 package com.cse110easyeat.easyeat;
 
+import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.multidex.MultiDex;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -31,7 +33,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
     private FirebaseAuth authenticator;
@@ -39,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle abdt;
     private FirebaseAuth mAuth;
 
-//    private DrawerLayout dl;
-//    private ActionBarDrawerToggle abdt;
+    private TextView userFullName;
+    private TextView userEmail;
 
     private Button loginButton;
     private EditText emailField;
@@ -51,22 +56,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //    FirebaseLoginService testLogin = new FirebaseLoginService(this);
-        //testLogin.createNewAccount("thisisbullshit310294912jdqkwjff1rh@gmail.com", "pwtest");
-        //      testLogin.validateAccount("thisisbullshit310294912jdqkwjff1rh@gmail.com", "pwtest");
-//        testLogin.sendEmailVerification();
-        //  testLogin.signOut();
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.swipe_main);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Begin the transaction
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         final NavigationView nav_view =  (NavigationView)findViewById(R.id.nav_view);
+        View header = nav_view.getHeaderView(0);
+        userEmail = (TextView) header.findViewById(R.id.navHeaderEmail);
+        userFullName = (TextView) header.findViewById(R.id.navHeaderName);
 
-//        setContentView(R.layout.activity_main);
         dl=(DrawerLayout)findViewById(R.id.dl);
         abdt = new ActionBarDrawerToggle(this,dl,R.string.Open,R.string.Close);
         abdt.setDrawerIndicatorEnabled(true);
@@ -74,12 +72,11 @@ public class MainActivity extends AppCompatActivity {
         dl.addDrawerListener(abdt);
         abdt.syncState();
 
-
-        //nav_view.bringToFront();
         nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener()
         {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem Item) {
+
                 int id = Item.getItemId();
                 if (id == R.id.setting){
                     Toast.makeText(MainActivity.this, "Setting", Toast.LENGTH_SHORT);
@@ -90,10 +87,13 @@ public class MainActivity extends AppCompatActivity {
                     // Complete the changes added above
                     ft.commit();
                 }
-                else if (id == R.id.history){
-                    Toast.makeText(MainActivity.this, "History", Toast.LENGTH_SHORT);
-
-                }
+//                else if (id == R.id.history){
+//                    Toast.makeText(MainActivity.this, "History", Toast.LENGTH_SHORT);
+//                    // TODO: TEST PAGE TEST
+//                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//                    ft.replace(R.id.mainFragment, new swipeCardFragment());
+//                    ft.commit();
+//                }
                 else if (id == R.id.logout){
                     Toast.makeText(MainActivity.this, "Log Out", Toast.LENGTH_SHORT);
                     authenticator = FirebaseAuth.getInstance();
@@ -101,18 +101,9 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     // TODO: PAGE SHOULD NOT BE IN RETAINED FORM (TEMP WORKAROUND)
                     setContentView(R.layout.activity_main);
-                    dl=(DrawerLayout)findViewById(R.id.dl);
-                    abdt = new ActionBarDrawerToggle(MainActivity.this,dl,R.string.Open,R.string.Close);
-                    abdt.setDrawerIndicatorEnabled(true);
 
-                    dl.addDrawerListener(abdt);
-                    abdt.syncState();
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.mainFragment, new inputFragment());
-                    ft.commit();
-
-                    // END OF REPLACEMENT
-                    startActivity(intent);
+                    Intent logOutIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivityForResult(logOutIntent, 1);
 
                 }
 
@@ -120,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         // Replace the contents of the container with the new fragment
         ft.replace(R.id.mainFragment, new inputFragment());
@@ -127,37 +119,8 @@ public class MainActivity extends AppCompatActivity {
         // Complete the changes added above
         ft.commit();
 
-//        mSwipeView = (SwipePlaceHolderView)findViewById(R.id.swipeView);
-//        mContext = getApplicationContext();
-//
-//        mSwipeView.getBuilder()
-//                .setDisplayViewCount(3)
-//                .setSwipeDecor(new SwipeDecor()
-//                        .setPaddingTop(20)
-//                        .setRelativeScale(0.01f)
-//                        .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
-//                        .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view));
-//
-//
-//        for(Profile profile : Utils.loadProfiles(this.getApplicationContext())){
-//            mSwipeView.addView(new TinderCard(mContext, profile, mSwipeView));
-//        }
-//
-//        findViewById(R.id.rejectBtn).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mSwipeView.doSwipe(false);
-//            }
-//        });
-//
-//        findViewById(R.id.acceptBtn).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mSwipeView.doSwipe(true);
-//            }
-//        });
         Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     // LOAD ANIMATION
@@ -173,4 +136,44 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
     }
+
+    // OnActivityResult
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK){
+            Log.d(TAG, "email result: " + data.getStringExtra("email"));
+            userEmail.setText(data.getStringExtra("email"));
+//            userFullName.setText(data.getStringExtra("fullname"));
+        }
+    }
+
+    // TRYING OUT FIREBASE SOLUTION
+    public class MyApplication extends Application {
+
+        @Override
+        protected void attachBaseContext(Context base) {
+            super.attachBaseContext(base);
+            MultiDex.install(this);
+        }
+
+    }
+    // TRYING TO SAVE FRAGMENT INSTANCES
+//    public void onCreate(Bundle savedInstanceState) {
+//    ...
+//        if (savedInstanceState != null) {
+//            //Restore the fragment's instance
+//            mContent = getSupportFragmentManager().getFragment(savedInstanceState, "myFragmentName");
+//        ...
+//        }
+//    ...
+//    }
+//
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        //Save the fragment's instance
+//        getSupportFragmentManager().putFragment(outState, "myFragmentName", mContent);
+//    }
+
 }

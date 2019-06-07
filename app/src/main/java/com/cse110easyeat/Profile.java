@@ -21,6 +21,14 @@ public class Profile {
     @Expose
     private String distanceFromCurLoc;
 
+    @SerializedName("address")
+    @Expose
+    private String address;
+
+    @SerializedName("price")
+    @Expose
+    private String price;
+
     // Rename the functions
     public String getName() {
         return name;
@@ -37,4 +45,8 @@ public class Profile {
     public String getDistanceFromCurLoc() {
         return distanceFromCurLoc;
     }
+
+    public String getAddress() { return address; }
+
+    public String getPrice() {return price; }
 }

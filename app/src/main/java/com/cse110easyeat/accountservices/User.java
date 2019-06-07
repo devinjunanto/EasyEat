@@ -1,17 +1,16 @@
 package com.cse110easyeat.accountservices;
 
 public class User {
-    String userId;
+    String id;
     String email;
-    String password;
     String fullName;
 //    String[] favoriteRestaurants;
 
-    public User(String email, String password, String fullName) {
+    public User(String email, String fullName) {
+        // CHECK REPLACE ALL
         String modifiedEmailStr = email.replaceAll(".","_");
-        this.userId = modifiedEmailStr;
+        this.id = modifiedEmailStr;
         this.fullName = fullName;
-        this.password = password;
         this.email = email;
     }
 
@@ -19,9 +18,8 @@ public class User {
     public User() {}
 
     public String getId() {
-        return userId;
+        return id;
     }
     public String getEmail() {return email;}
-    public String getPassword() {return password;}
     public String getFullName() {return fullName;}
 }

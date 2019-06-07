@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navHeaderView"
     android:layout_width="match_parent"
     android:layout_height="190dp"
     android:background="@android:color/holo_green_light"
@@ -16,16 +17,18 @@
 
     <TextView
         android:layout_width="wrap_content"
+        android:id="@+id/navHeaderName"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
-        android:text="Username"
+        android:text="USER FULL NAME"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/white" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="EasyEat+CSE110@ucsd.edu"
+        android:id="@+id/navHeaderEmail"
+        android:text="USER'S EMAIL"
         android:textColor="@android:color/white" />
 
 </LinearLayout>

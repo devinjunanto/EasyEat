@@ -39,6 +39,7 @@ public class FirebaseHandlerService implements DatabaseHandlerService {
         });
     }
 
+    // TODO: FIGURE THE WRITE DATABASE STRUCTURE
     /* Function to read data from Firebase */
     public ArrayList<User> getDataFromDatabase(final String userId) {
         dataQueryList.clear();
@@ -74,16 +75,16 @@ public class FirebaseHandlerService implements DatabaseHandlerService {
                 DatabaseReference dbCon = firebaseDb.getReference("Users");
                 boolean unique = true;
                 dataQueryList.clear();
-                if (dataSnapshot.child(data.getId()).exists()) {
-                    User userFound = dataSnapshot.child(data.getId()).getValue(User.class);
+                String dataKey = data.getId();
+                if (dataSnapshot.child(dataKey).exists()) {
+                    User userFound = dataSnapshot.child(dataKey).getValue(User.class);
                     dataQueryList.add(userFound);
                     Log.d(TAG, "snapshot exists" + " Data Query Testing");
                     unique = false;
                 }
 
                 if (unique) {
-                    String userId = data.getId();
-                    dbCon.child(userId).setValue(data);
+                    dbCon.child(dataKey).setValue(data);
                     dataQueryList.add(data);
                     Log.d(TAG, "Writing to DB since it's not a duplicate");
                 }

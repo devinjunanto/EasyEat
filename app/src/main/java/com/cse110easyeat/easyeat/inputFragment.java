@@ -43,7 +43,7 @@ import java.util.Locale;
 
 import static com.android.volley.VolleyLog.TAG;
 
-public class inputFragment extends Fragment implements LocationListener {
+public class inputFragment extends Fragment  {
     private final String TAG = "InputFragment";
     private EditText budgetField;
     private EditText distanceField;
@@ -60,30 +60,72 @@ public class inputFragment extends Fragment implements LocationListener {
     private NetworkVolleyManager networkManager;
     private GooglePlacesAPIServices apiHelper;
 
-    private LocationManager locationManager;
-    private LocationListener tracker;
+//    private LocationManager locationManager;
+//    private LocationListener tracker;
 
+    // TODO: WHY IS IT NOT ENDING
+    // TODO: IMAGE IS STILL A BIT TOO LARGE
+    // TODO: onPostExecute
     private JSONArray writeDataToJsonFile(String apiResult) {
-        JSONArray arrToWrite = new JSONArray();
+        final JSONArray arrToWrite = new JSONArray();
         try {
-            JSONObject jsonResult = new JSONObject(apiResult);
+            final JSONObject jsonResult = new JSONObject(apiResult);
             JSONArray resultsArr = jsonResult.getJSONArray("results");
             Log.d(TAG, "parsed result array: \n" + resultsArr.toString());
             // TODO: EXTRACT THE RATING, NAME, DISTANCE, IMAGE URL
-            // TODO: USE PLACES PHOTO API
-            // TODO: WRITE TO CACHE FILES
+            // TODO: USE DISTANCE MATRIX API TO GET DISTANCE
+            // TODO: EXTRACT FORMATED ADDRESS FIELD
+            // TODO: GET THE PLACE_ID
             for (int i = 0; i < resultsArr.length(); i++) {
+                Log.d(TAG, "Results length: " + resultsArr.length());
                 JSONObject restaurantRes = resultsArr.getJSONObject(i);
-                jsonResult.put("name", restaurantRes.getString("name"));
                 // TODO: figure out how to get distance
-                jsonResult.put("distance", "3");
-                jsonResult.put("rating", restaurantRes.getString("rating"));
 
                 String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
-                String height = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("height");
-                String width = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("width");
+//                String height = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("height");
+//                String width = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("width");
+
+                String height = "220";
+                String width = "150";
+
+                String address = restaurantRes.getString("formatted_address");
+                String priceLevel = restaurantRes.getString("price_level");
+                String priceIcon = "";
+                try {
+                    int price = Integer.parseInt(priceLevel);
+                    for (int j = 0; j < price; j++) {
+                        priceIcon += "$";
+                    }
+                } catch (NumberFormatException e) {
+                    Log.d(TAG, "Weird result from aPI");
+                }
+
+                jsonResult.put("address", address);
+                jsonResult.put("price", priceIcon);
+                jsonResult.put("distance", "3" + " miles");
+                jsonResult.put("rating", restaurantRes.getString("rating"));
+                jsonResult.put("name", restaurantRes.getString("name"));
+
+                String placeId = restaurantRes.getString("place_id");
+                String totalNumRatings = restaurantRes.getString("user_ratings_total");
+
                 String imageURL = generateImageURL(photoRef, height, width);
+                float currentLat = 32.8801f;
+                float currentLong = -117.2340f;
+
                 jsonResult.put("url", imageURL);
+                Log.d(TAG, "json res: \n" + jsonResult.toString());
+                String distanceURL = generateDistanceURL(currentLat, currentLong, placeId);
+
+                // USE THIS TO GET DISTANCE
+//                networkManager.postRequestAndReturnString(distanceURL, new NetworkListener<String>() {
+//                    @Override
+//                    public void getResult(String result) {
+//                        Log.d(TAG, "Distance API Call result: \n" + result);
+//                        arrToWrite.put(jsonResult.toString());
+//                    }
+//                });
+//                arrToWrite.put(jsonResult.toString());
                 arrToWrite.put(jsonResult.toString());
             }
 
@@ -104,8 +146,9 @@ public class inputFragment extends Fragment implements LocationListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         //super.onViewCreated(view, savedInstanceState);
         // TODO: LOCATION CHECK (THEY ARE ASYNC)
-        checkLocationPermissions();
-        getLocation();
+//        checkLocationPermissions();
+//        getLocation();
+
 
         progressCircle = new ProgressDialog(getActivity());
 
@@ -189,29 +232,31 @@ public class inputFragment extends Fragment implements LocationListener {
     }
 
 
-    // START OF ATTEMPT TO GET LOCATION
-    public void checkLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//    // START OF ATTEMPT TO GET LOCATION
+//    public void checkLocationPermissions() {
+//        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
+//                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(),
+//                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//
+//            ActivityCompat.requestPermissions(getActivity(),
+//                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                            android.Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
+//        }
+//    }
+//
+//    public void getLocation() {
+//        try {
+//            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5, this);
+//        }
+//        catch(SecurityException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
-        }
-    }
-
-    public void getLocation() {
-        try {
-            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5, this);
-        }
-        catch(SecurityException e) {
-            e.printStackTrace();
-        }
-    }
-
+    // TODO: REFACTOR THESE METHODS
+    // URL GENERATOR HELPER METHODS
     public String generateImageURL(String photoReference, String height, String width) {
         String imageURL = "https://maps.googleapis.com/maps/api/place/photo?key=%s&photoreference=%s&maxheight=%s&maxwidth=%s";
         imageURL = String.format(imageURL, BuildConfig.PLACES_API_KEY, photoReference,
@@ -219,37 +264,44 @@ public class inputFragment extends Fragment implements LocationListener {
         return imageURL;
     }
 
-
-    // TODO: IMPLEMENT GET LOCATION METHODS
-    @Override
-    public void onLocationChanged(Location location) {
-        try {
-            Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            longitude = (float)location.getLongitude();
-            latitude =  (float)location.getLatitude();
-
-//            locationText.setText(locationText.getText() + "\n"+addresses.get(0).getAddressLine(0)+", "+
-//                    addresses.get(0).getAddressLine(1)+", "+addresses.get(0).getAddressLine(2));
-        } catch(Exception e) {
-            Log.d(TAG, "Exception caught onLocationChanged");
-        }
+    public String generateDistanceURL(float currentLat, float currentLong, String destinationId) {
+        String distanceURL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=%f,%f" +
+                "&destinations=place_id:%s&units=imperial&key=%s";
+        distanceURL = String.format(distanceURL, currentLat, currentLong, destinationId,
+                BuildConfig.PLACES_API_KEY);
+        return distanceURL;
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) { }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        Log.d(TAG, "Location services and internet enabled");
-        Toast.makeText(getActivity().getApplicationContext(), "Location Services enabled",
-                Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        Log.d(TAG, "Location services is not activated yet");
-        Toast.makeText(getActivity().getApplicationContext(), "Enable location services",
-                Toast.LENGTH_SHORT).show();
-    }
+//    // TODO: IMPLEMENT GET LOCATION METHODS
+//    @Override
+//    public void onLocationChanged(Location location) {
+//        try {
+//            Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+//            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+//            longitude = (float)location.getLongitude();
+//            latitude =  (float)location.getLatitude();
+//
+////            locationText.setText(locationText.getText() + "\n"+addresses.get(0).getAddressLine(0)+", "+
+////                    addresses.get(0).getAddressLine(1)+", "+addresses.get(0).getAddressLine(2));
+//        } catch(Exception e) {
+//            Log.d(TAG, "Exception caught onLocationChanged");
+//        }
+//    }
+//
+//    @Override
+//    public void onStatusChanged(String provider, int status, Bundle extras) { }
+//
+//    @Override
+//    public void onProviderEnabled(String provider) {
+//        Log.d(TAG, "Location services and internet enabled");
+//        Toast.makeText(getActivity().getApplicationContext(), "Location Services enabled",
+//                Toast.LENGTH_SHORT).show();
+//    }
+//
+//    @Override
+//    public void onProviderDisabled(String provider) {
+//        Log.d(TAG, "Location services is not activated yet");
+//        Toast.makeText(getActivity().getApplicationContext(), "Enable location services",
+//                Toast.LENGTH_SHORT).show();
+//    }
 }

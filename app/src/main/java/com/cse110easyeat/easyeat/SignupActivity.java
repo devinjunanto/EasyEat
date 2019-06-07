@@ -1,5 +1,6 @@
 package com.cse110easyeat.easyeat;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cse110easyeat.controller.EasyEatController;
+import com.cse110easyeat.database.service.FirebaseHandlerService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -35,14 +37,17 @@ public class SignupActivity extends Activity {
     private String password;
     private String verifyPassword;
 
-    //private EasyEatController backendController;
+    private EasyEatController backendController;
+    private ProgressDialog signupDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup_layout);
+        signupDialog = new ProgressDialog(this);
         Log.d(TAG, "created activity");
         // Create firebase user
+        Log.d(TAG, "TEST");
         mAuth = FirebaseAuth.getInstance();
         fullNameField = (EditText) findViewById(R.id.fullName);
         passwordField = (EditText) findViewById(R.id.password);
@@ -52,19 +57,21 @@ public class SignupActivity extends Activity {
         signUpButton = (Button) findViewById(R.id.signUpBtn);
 
         // TODO: INTEGRATE IT WITH FIREBASE
-       // backendController = new EasyEatController(getApplicationContext());
+       backendController = new EasyEatController(getApplicationContext());
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Extract the input fields
+                signupDialog.setMessage("Signing up...");
+                signupDialog.show();
                 if (validateForm()) {
                     mAuth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        //backendController.registerUser(email, password, fullName);
+                                        backendController.registerUser(email, fullName);
                                         Log.d(TAG, "Account creation successful");
                                         final FirebaseUser user = mAuth.getCurrentUser();
                                         user.sendEmailVerification()
@@ -78,11 +85,14 @@ public class SignupActivity extends Activity {
                                                         }
                                                     }
                                                 });
+                                        signupDialog.hide();
+                                        signupDialog.dismiss();
                                         Toast.makeText(getApplicationContext(), "Signup success - verify your email", Toast.LENGTH_SHORT).show();
                                         finish();
                                         // added
                                         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                     } else {
+                                        signupDialog.hide();
                                         Log.d(TAG, "Account creation failed" + task.getException());
                                         Toast.makeText(getApplicationContext(), "Signup failed", Toast.LENGTH_SHORT).show();
                                     }

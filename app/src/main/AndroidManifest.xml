@@ -28,9 +28,9 @@
                 android:value="com.cse110easyeat.easyeat.MainActivity" />
         </activity>
         <activity
-            android:name=".SignupActivity"
+            android:name="com.cse110easyeat.easyeat.SignupActivity"
             android:label="@string/title_activity_signup"
-            android:parentActivityName=".LoginActivity">
+            android:parentActivityName="com.cse110easyeat.easyeat.LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cse110easyeat.easyeat.LoginActivity" />

@@ -19,6 +19,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/mainLayout"
         tools:context=".MainActivity">
 
     </RelativeLayout>
@@ -35,72 +36,6 @@
 
 
     </android.support.design.widget.NavigationView>
-    <!--<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:fillViewport="true"-->
-        <!--android:overScrollMode="never"-->
-        <!--android:scrollbars="none">-->
-
-        <!--<RelativeLayout-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@color/background_color">-->
-
-            <!--<ImageView-->
-                <!--android:id="@+id/close_activity"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_alignParentRight="true"-->
-                <!--android:layout_gravity="top|end"-->
-                <!--android:layout_margin="4dp"-->
-                <!--android:contentDescription="@string/closebutton"-->
-                <!--android:padding="5dp"-->
-                <!--android:src="@drawable/close" />-->
-
-            <!--<FrameLayout-->
-                <!--android:id="@+id/frameContainer"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="fill_parent"-->
-                <!--android:layout_below="@+id/close_activity"-->
-                <!--android:layout_marginTop="9dp"-->
-                <!--android:background="@color/places_autocomplete_fullscreen_background" />-->
-        <!--</RelativeLayout>-->
-
-    <!--</ScrollView>-->
-
-    <!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@color/grey"-->
-        <!--android:orientation="vertical">-->
-
-        <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="80dp"-->
-            <!--android:layout_gravity="bottom"-->
-            <!--android:gravity="center"-->
-            <!--android:orientation="horizontal">-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/rejectBtn"-->
-                <!--android:layout_width="50dp"-->
-                <!--android:layout_height="50dp"-->
-                <!--android:background="@drawable/ic_reject" />-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/acceptBtn"-->
-                <!--android:layout_width="50dp"-->
-                <!--android:layout_height="50dp"-->
-                <!--android:layout_marginLeft="30dp"-->
-                <!--android:background="@drawable/ic_check" />-->
-        <!--</LinearLayout>-->
-
-        <!--<com.mindorks.placeholderview.SwipePlaceHolderView-->
-            <!--android:id="@+id/swipeView"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" />-->
-    <!--</FrameLayout>-->
 
 
 </android.support.v4.widget.DrawerLayout>
