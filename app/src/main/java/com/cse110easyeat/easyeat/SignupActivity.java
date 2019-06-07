@@ -30,8 +30,10 @@ public class SignupActivity extends Activity {
     private EditText passwordField;
     private EditText confirmPasswordField;
     private EditText emailField;
+
     private TextView loginLink;
     private Button signUpButton;
+
     private String fullName;
     private String email;
     private String password;
@@ -49,15 +51,19 @@ public class SignupActivity extends Activity {
         // Create firebase user
         Log.d(TAG, "TEST");
         mAuth = FirebaseAuth.getInstance();
+
+        // Set the variables
         fullNameField = (EditText) findViewById(R.id.fullName);
         passwordField = (EditText) findViewById(R.id.password);
         confirmPasswordField = (EditText) findViewById(R.id.confirmPassword);
         emailField = (EditText) findViewById(R.id.userEmailId);
+
         loginLink = (TextView) findViewById(R.id.already_user);
+
         signUpButton = (Button) findViewById(R.id.signUpBtn);
 
         // TODO: INTEGRATE IT WITH FIREBASE
-       backendController = new EasyEatController(getApplicationContext());
+        backendController = new EasyEatController(getApplicationContext());
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,8 +95,6 @@ public class SignupActivity extends Activity {
                                         signupDialog.dismiss();
                                         Toast.makeText(getApplicationContext(), "Signup success - verify your email", Toast.LENGTH_SHORT).show();
                                         finish();
-                                        // added
-                                        //startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                     } else {
                                         signupDialog.hide();
                                         Log.d(TAG, "Account creation failed" + task.getException());
@@ -101,12 +105,11 @@ public class SignupActivity extends Activity {
                 }
             }
         });
+
         loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
-                // added
-                //startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             }
         });
     }

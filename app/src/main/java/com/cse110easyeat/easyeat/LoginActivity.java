@@ -29,15 +29,19 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.w3c.dom.Text;
+
 public class LoginActivity extends Activity {
     private Button loginButton;
     private EditText emailField;
     private EditText passwordField;
+
     private EasyEatController backendController;
     private FirebaseAuth mAuth;
     private CheckBox showPassword;
 
     private TextView signUpLink;
+    private TextView forgetPasswordLink;
 
     private ProgressDialog progressBar;
     private static final String TAG = "LoginActivity";
@@ -58,6 +62,7 @@ public class LoginActivity extends Activity {
         passwordField = (EditText) findViewById(R.id.login_password);
         signUpLink = (TextView) findViewById(R.id.createAccount);
         showPassword = (CheckBox) findViewById(R.id.show_hide_password);
+        forgetPasswordLink = (TextView) findViewById(R.id.forgot_password);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +102,6 @@ public class LoginActivity extends Activity {
                                                     finish();
                                                 }
                                             });
-                                            //startActivity(new Intent(getApplicationContext(), inputFragment.class));
                                         } else {
                                             Toast.makeText(LoginActivity.this, "Please verify your email!", Toast.LENGTH_SHORT).show();
                                         }
@@ -132,6 +136,13 @@ public class LoginActivity extends Activity {
         });
 
         // TODO: IMPLEMENT FORGET PASSWORD
+        forgetPasswordLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create a new forgotpassword activity
+               mAuth.sendPasswordResetEmail("vincent0298@gmail.com");
+            }
+        });
 
 
     }

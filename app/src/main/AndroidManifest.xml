@@ -28,9 +28,18 @@
                 android:value="com.cse110easyeat.easyeat.MainActivity" />
         </activity>
         <activity
-            android:name="com.cse110easyeat.easyeat.SignupActivity"
+            android:name=".SignupActivity"
             android:label="@string/title_activity_signup"
-            android:parentActivityName="com.cse110easyeat.easyeat.LoginActivity">
+            android:parentActivityName=".LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cse110easyeat.easyeat.LoginActivity" />
+        </activity>
+        <activity
+            android:name=".resetPasswordActivity"
+            android:label="@string/title_activity_reset_password"
+            android:parentActivityName=".LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cse110easyeat.easyeat.LoginActivity" />
