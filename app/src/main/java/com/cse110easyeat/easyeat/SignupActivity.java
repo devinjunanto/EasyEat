@@ -76,6 +76,13 @@ public class SignupActivity extends Activity {
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
+                                    /**
+                                     * Success if the user's credentials are found on firebase,
+                                     * it will then check if the user has verified their email
+                                     * and will login the user if they are
+                                     *
+                                     * Areas of Concern: Multiple callbacks (callback hell)
+                                     * **/
                                     if (task.isSuccessful()) {
                                         backendController.registerUser(email, fullName);
                                         Log.d(TAG, "Account creation successful");
@@ -91,6 +98,7 @@ public class SignupActivity extends Activity {
                                                         }
                                                     }
                                                 });
+
                                         signupDialog.hide();
                                         signupDialog.dismiss();
                                         Toast.makeText(getApplicationContext(), "Signup success - verify your email", Toast.LENGTH_SHORT).show();
@@ -120,6 +128,12 @@ public class SignupActivity extends Activity {
         mAuth = FirebaseAuth.getInstance();
     }
 
+    /**
+     * Validates user input that is to be used for signing up their account. Email validity
+     * is not checked since if the user passed in an invalid email then they can't verify their
+     * account which would render it unusable
+     * @return True if the form is valid and False if it isn't
+     */
     private boolean validateForm() {
         fullName = fullNameField.getText().toString();
         email = emailField.getText().toString();

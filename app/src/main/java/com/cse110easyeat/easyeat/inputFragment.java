@@ -66,6 +66,14 @@ public class inputFragment extends Fragment  {
     // TODO: WHY IS IT NOT ENDING
     // TODO: IMAGE IS STILL A BIT TOO LARGE
     // TODO: onPostExecute
+
+    /**
+     * This function is used to call the GooglePlacesAPI and parse the result into a JSONArray
+     * to be used to render information with the SwipePlaceHolderView class
+     *
+     * @param apiResult - result from api call
+     * @return a JSONArray that contains the parsed information corresponding to the Profile class
+     */
     private JSONArray writeDataToJsonFile(String apiResult) {
         final JSONArray arrToWrite = new JSONArray();
         try {
@@ -82,8 +90,6 @@ public class inputFragment extends Fragment  {
                 // TODO: figure out how to get distance
 
                 String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
-//                String height = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("height");
-//                String width = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("width");
 
                 String height = "220";
                 String width = "150";
@@ -179,6 +185,9 @@ public class inputFragment extends Fragment  {
 
                             FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                             btnFragment fragClass = new btnFragment();
+                            /**
+                             * Pass in the parsed api results in to the infoFragment
+                             */
                             Bundle bundle = new Bundle();
                             bundle.putString("data", test.toString());
                             fragClass.setArguments(bundle);
@@ -255,8 +264,9 @@ public class inputFragment extends Fragment  {
 //        }
 //    }
 
+
+
     // TODO: REFACTOR THESE METHODS
-    // URL GENERATOR HELPER METHODS
     public String generateImageURL(String photoReference, String height, String width) {
         String imageURL = "https://maps.googleapis.com/maps/api/place/photo?key=%s&photoreference=%s&maxheight=%s&maxwidth=%s";
         imageURL = String.format(imageURL, BuildConfig.PLACES_API_KEY, photoReference,

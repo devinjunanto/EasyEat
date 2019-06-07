@@ -100,20 +100,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Log Out", Toast.LENGTH_SHORT);
                     authenticator = FirebaseAuth.getInstance();
                     authenticator.getInstance().signOut();
-                    // TODO: PAGE SHOULD NOT BE IN RETAINED FORM (TEMP WORKAROUND)
-//                    setContentView(R.layout.activity_main);
 
+                    /** Reset the input page back to its initial state (closing the drawer) **/
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    // Replace the contents of the container with the new fragment
                     ft.replace(R.id.mainFragment, new inputFragment());
-                    // or ft.add(R.id.your_placeholder, new FooFragment());
-                    // Complete the changes added above
                     ft.commit();
                     dl.closeDrawer(Gravity.LEFT);
 
+                    /** Starts the LoginActivity to allow another user to login to the app **/
                     Intent logOutIntent = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivityForResult(logOutIntent, 1);
-
                 }
 
                 return true;
@@ -121,27 +117,15 @@ public class MainActivity extends AppCompatActivity {
 
         });
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        // Replace the contents of the container with the new fragment
         ft.replace(R.id.mainFragment, new inputFragment());
-        // or ft.add(R.id.your_placeholder, new FooFragment());
-        // Complete the changes added above
         ft.commit();
 
+        /**
+         *  Start LoginActivity and await result to be used to update the navHeader
+         */
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 1);
-
-//
-//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//        // Replace the contents of the container with the new fragment
-//        ft.replace(R.id.mainFragment, new inputFragment());
-//        // or ft.add(R.id.your_placeholder, new FooFragment());
-//        // Complete the changes added above
-//        ft.commit();
     }
-
-    // LOAD ANIMATION
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -153,7 +137,16 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
-    // OnActivityResult
+    /**
+     * Description:
+     * This function will be called after calling another Activity with startActivityForResult
+     * and that particular function finishes (it's removed from the back stack)
+     *
+     * @param requestCode = Integer
+     * @param resultCode = Integer returned by the activity started for result that indicates
+     *                   success or failure
+     * @param data = Contains the arguments that is returned by the called activity
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK){
@@ -162,34 +155,4 @@ public class MainActivity extends AppCompatActivity {
             userFullName.setText(data.getStringExtra("name"));
         }
     }
-
-//    // TRYING OUT FIREBASE SOLUTION
-//    public class MyApplication extends Application {
-//
-//        @Override
-//        protected void attachBaseContext(Context base) {
-//            super.attachBaseContext(base);
-//            MultiDex.install(this);
-//        }
-//
-//    }
-    // TRYING TO SAVE FRAGMENT INSTANCES
-//    public void onCreate(Bundle savedInstanceState) {
-//    ...
-//        if (savedInstanceState != null) {
-//            //Restore the fragment's instance
-//            mContent = getSupportFragmentManager().getFragment(savedInstanceState, "myFragmentName");
-//        ...
-//        }
-//    ...
-//    }
-//
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        //Save the fragment's instance
-//        getSupportFragmentManager().putFragment(outState, "myFragmentName", mContent);
-//    }
-
 }

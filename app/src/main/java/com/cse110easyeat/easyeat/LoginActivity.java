@@ -110,7 +110,6 @@ public class LoginActivity extends Activity {
                                     }
                                 }
                             });
-
                 }
             }
         });
@@ -143,8 +142,6 @@ public class LoginActivity extends Activity {
                mAuth.sendPasswordResetEmail("vincent0298@gmail.com");
             }
         });
-
-
     }
 
     @Override
@@ -157,4 +154,10 @@ public class LoginActivity extends Activity {
             showPassword.toggle();
         }
     }
+
+    /**
+     * Empty implementation of onBackPressed to avoid the user being able to bypass the login page
+     * **/
+    @Override
+    public void onBackPressed() { }
 }
