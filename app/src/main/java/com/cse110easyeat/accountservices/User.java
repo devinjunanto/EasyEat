@@ -8,13 +8,12 @@ public class User {
 
     public User(String email, String fullName) {
         // CHECK REPLACE ALL
-        String modifiedEmailStr = email.replaceAll(".","_");
+        String modifiedEmailStr = email.replaceAll("\\.","_");
         this.id = modifiedEmailStr;
         this.fullName = fullName;
         this.email = email;
     }
 
-    // Empty default ctor for Firebase
     public User() {}
 
     public String getId() {

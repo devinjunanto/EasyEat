@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.cse110easyeat.accountservices.User;
+import com.cse110easyeat.network.listener.NetworkListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,7 +42,8 @@ public class FirebaseHandlerService implements DatabaseHandlerService {
 
     // TODO: FIGURE THE WRITE DATABASE STRUCTURE
     /* Function to read data from Firebase */
-    public ArrayList<User> getDataFromDatabase(final String userId) {
+    public ArrayList<User> getDataFromDatabase(final String userId,
+                                               final NetworkListener<User> dbListener) {
         dataQueryList.clear();
         DatabaseReference dbReference = firebaseDb.getReference("Users");
         dbReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -51,7 +53,7 @@ public class FirebaseHandlerService implements DatabaseHandlerService {
                 if (dataSnapshot.exists()) {
                     if (dataSnapshot.child(userId).exists()) {
                         User userFound = dataSnapshot.child(userId).getValue(User.class);
-                        dataQueryList.add(userFound);
+                        dbListener.getResult(userFound);
                     }
                 } else {
                     Log.d(TAG, "onDataChange of query " + "Snapshot does not exists");
@@ -61,6 +63,7 @@ public class FirebaseHandlerService implements DatabaseHandlerService {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.d(TAG, "Query cancelled" + databaseError.toString());
+                dbListener.getResult(null);
             }
         });
 

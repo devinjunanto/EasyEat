@@ -1,5 +1,6 @@
 package com.cse110easyeat.easyeat;
 
+import com.cse110easyeat.accountservices.User;
 import com.cse110easyeat.controller.EasyEatController;
 
 import android.app.ProgressDialog;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cse110easyeat.easyeat.R;
+import com.cse110easyeat.network.listener.NetworkListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -47,6 +49,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.login_layout);
 
         mAuth = FirebaseAuth.getInstance();
+        backendController = new EasyEatController(getApplicationContext());
         progressBar = new ProgressDialog(this);
 
 
@@ -74,15 +77,26 @@ public class LoginActivity extends Activity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     progressBar.hide();
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                                         FirebaseUser user = mAuth.getCurrentUser();
                                         if (user.isEmailVerified()) {
-                                            progressBar.dismiss();
-                                            Intent returnIntent = new Intent();
-                                            returnIntent.putExtra("email", user.getEmail());
-                                            setResult(RESULT_OK, returnIntent);
-                                            finish();
-
+                                            final String userId = user.getEmail().replaceAll("\\.","_");
+                                            backendController.getDatabaseService().getDataFromDatabase(userId, new NetworkListener<User>() {
+                                                @Override
+                                                public void getResult(User result) {
+                                                    progressBar.dismiss();
+                                                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                                    Intent returnIntent = new Intent();
+                                                    Log.d(TAG, "LOGS OF CHECKING ARGS ON INTENT");
+                                                    Log.d(TAG, "Name found after login: " + result.getEmail());
+                                                    Log.d(TAG, "Email found from firebase: " + result.getFullName());
+                                                    returnIntent.putExtra("email", result.getEmail());
+                                                    returnIntent.putExtra("name", result.getFullName());
+                                                    setResult(RESULT_OK, returnIntent);
+                                                    // TODO: instead of finish add it to backstack?
+                                                    finish();
+                                                }
+                                            });
                                             //startActivity(new Intent(getApplicationContext(), inputFragment.class));
                                         } else {
                                             Toast.makeText(LoginActivity.this, "Please verify your email!", Toast.LENGTH_SHORT).show();
@@ -101,7 +115,6 @@ public class LoginActivity extends Activity {
         signUpLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
                 startActivity(new Intent(getApplicationContext(), SignupActivity.class));
             }
         });
@@ -121,5 +134,16 @@ public class LoginActivity extends Activity {
         // TODO: IMPLEMENT FORGET PASSWORD
 
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reset the fields
+        emailField.setText("");
+        passwordField.setText("");
+        if (showPassword.isChecked()) {
+            showPassword.toggle();
+        }
     }
 }

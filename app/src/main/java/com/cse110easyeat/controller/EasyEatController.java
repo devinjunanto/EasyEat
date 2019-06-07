@@ -37,6 +37,10 @@ public class EasyEatController {
         Log.d(TAG, "Registered a new user");
     }
 
+    public DatabaseHandlerService getDatabaseService() {
+        return databaseService;
+    }
+
 
 
 }

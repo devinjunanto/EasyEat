@@ -10,13 +10,14 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.multidex.MultiDex;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
                 int id = Item.getItemId();
                 if (id == R.id.setting){
+                    dl.closeDrawer(Gravity.LEFT);
                     Toast.makeText(MainActivity.this, "Setting", Toast.LENGTH_SHORT);
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     // Replace the contents of the container with the new fragment
@@ -98,11 +100,18 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Log Out", Toast.LENGTH_SHORT);
                     authenticator = FirebaseAuth.getInstance();
                     authenticator.getInstance().signOut();
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     // TODO: PAGE SHOULD NOT BE IN RETAINED FORM (TEMP WORKAROUND)
-                    setContentView(R.layout.activity_main);
+//                    setContentView(R.layout.activity_main);
 
-                    Intent logOutIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    // Replace the contents of the container with the new fragment
+                    ft.replace(R.id.mainFragment, new inputFragment());
+                    // or ft.add(R.id.your_placeholder, new FooFragment());
+                    // Complete the changes added above
+                    ft.commit();
+                    dl.closeDrawer(Gravity.LEFT);
+
+                    Intent logOutIntent = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivityForResult(logOutIntent, 1);
 
                 }
@@ -111,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         // Replace the contents of the container with the new fragment
         ft.replace(R.id.mainFragment, new inputFragment());
@@ -121,6 +129,14 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 1);
+
+//
+//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//        // Replace the contents of the container with the new fragment
+//        ft.replace(R.id.mainFragment, new inputFragment());
+//        // or ft.add(R.id.your_placeholder, new FooFragment());
+//        // Complete the changes added above
+//        ft.commit();
     }
 
     // LOAD ANIMATION
@@ -143,20 +159,20 @@ public class MainActivity extends AppCompatActivity {
         if(resultCode == RESULT_OK){
             Log.d(TAG, "email result: " + data.getStringExtra("email"));
             userEmail.setText(data.getStringExtra("email"));
-//            userFullName.setText(data.getStringExtra("fullname"));
+            userFullName.setText(data.getStringExtra("name"));
         }
     }
 
-    // TRYING OUT FIREBASE SOLUTION
-    public class MyApplication extends Application {
-
-        @Override
-        protected void attachBaseContext(Context base) {
-            super.attachBaseContext(base);
-            MultiDex.install(this);
-        }
-
-    }
+//    // TRYING OUT FIREBASE SOLUTION
+//    public class MyApplication extends Application {
+//
+//        @Override
+//        protected void attachBaseContext(Context base) {
+//            super.attachBaseContext(base);
+//            MultiDex.install(this);
+//        }
+//
+//    }
     // TRYING TO SAVE FRAGMENT INSTANCES
 //    public void onCreate(Bundle savedInstanceState) {
 //    ...

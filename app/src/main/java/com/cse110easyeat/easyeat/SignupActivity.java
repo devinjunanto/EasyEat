@@ -90,7 +90,7 @@ public class SignupActivity extends Activity {
                                         Toast.makeText(getApplicationContext(), "Signup success - verify your email", Toast.LENGTH_SHORT).show();
                                         finish();
                                         // added
-                                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                                        //startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                     } else {
                                         signupDialog.hide();
                                         Log.d(TAG, "Account creation failed" + task.getException());
@@ -106,7 +106,7 @@ public class SignupActivity extends Activity {
             public void onClick(View v) {
                 finish();
                 // added
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                //startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             }
         });
     }
