@@ -139,7 +139,9 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // Create a new forgotpassword activity
-               mAuth.sendPasswordResetEmail("vincent0298@gmail.com");
+                Intent resetPassword = new Intent(getApplicationContext(),
+                        resetPasswordActivity.class);
+               startActivity(resetPassword);
             }
         });
     }
