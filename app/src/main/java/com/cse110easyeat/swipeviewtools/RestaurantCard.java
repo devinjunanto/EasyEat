@@ -1,4 +1,4 @@
-package com.cse110easyeat;
+package com.cse110easyeat.swipeviewtools;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.cse110easyeat.easyeat.R;
 import com.cse110easyeat.easyeat.btnFragment;
+import com.cse110easyeat.swipeviewtools.Profile;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 import com.mindorks.placeholderview.annotations.Layout;
 import com.mindorks.placeholderview.annotations.Resolve;
@@ -19,7 +20,7 @@ import com.mindorks.placeholderview.annotations.swipe.SwipeOut;
 import com.mindorks.placeholderview.annotations.swipe.SwipeOutState;
 
 @Layout(R.layout.activity_card)
-public class TinderCard {
+public class RestaurantCard {
 
     @View(R.id.profileImageView)
     private ImageView profileImageView;
@@ -34,7 +35,7 @@ public class TinderCard {
     private Context mContext;
     private SwipePlaceHolderView mSwipeView;
 
-    public TinderCard(Context context, Profile profile, SwipePlaceHolderView swipeView) {
+    public RestaurantCard(Context context, Profile profile, SwipePlaceHolderView swipeView) {
         mContext = context;
         mProfile = profile;
         mSwipeView = swipeView;

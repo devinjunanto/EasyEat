@@ -1,4 +1,4 @@
-package com.cse110easyeat;
+package com.cse110easyeat.swipeviewtools;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

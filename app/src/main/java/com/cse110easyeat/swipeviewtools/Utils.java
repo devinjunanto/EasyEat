@@ -1,9 +1,10 @@
-package com.cse110easyeat;
+package com.cse110easyeat.swipeviewtools;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+import com.cse110easyeat.swipeviewtools.Profile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

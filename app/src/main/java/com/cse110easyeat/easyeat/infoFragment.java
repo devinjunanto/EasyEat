@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.cse110easyeat.Profile;
-import com.cse110easyeat.TinderCard;
-import com.cse110easyeat.Utils;
+import com.cse110easyeat.swipeviewtools.Profile;
+import com.cse110easyeat.swipeviewtools.RestaurantCard;
 import com.mindorks.placeholderview.PlaceHolderView;
-import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
-
-import org.w3c.dom.Text;
 // TODO: TRY LIVEVIEW AND VIEWMODEL ASAP
 
 public class infoFragment extends Fragment {
@@ -42,7 +37,7 @@ public class infoFragment extends Fragment {
         TextView distanceField = (TextView) view.findViewById(R.id.locationNameTxt);
         //TextView ratingField = (TextView) view.findViewById(R.id.ratingTxt);
 
-        TinderCard acceptCard = btnFragment.getLastCardInfo();
+        RestaurantCard acceptCard = btnFragment.getLastCardInfo();
         Profile mProfile = acceptCard.getmProfile();
         Context mContext = getActivity().getApplicationContext();
 

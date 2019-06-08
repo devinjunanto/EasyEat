@@ -8,15 +8,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
-import com.cse110easyeat.Profile;
-import com.cse110easyeat.TinderCard;
-import com.cse110easyeat.Utils;
+import com.cse110easyeat.swipeviewtools.Profile;
+import com.cse110easyeat.swipeviewtools.RestaurantCard;
+import com.cse110easyeat.swipeviewtools.Utils;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 
@@ -29,17 +26,17 @@ public class btnFragment extends Fragment {
     private static final int MIN_DISTANCE = 150;
     private final String TAG = "btnFragment";
 
-    public static TinderCard prevCard;
+    public static RestaurantCard prevCard;
 
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
     private String apiResult;
 
-    public static void setLastCardInfo(TinderCard lastCard) {
+    public static void setLastCardInfo(RestaurantCard lastCard) {
         prevCard = lastCard;
     }
 
-    public static TinderCard getLastCardInfo() {
+    public static RestaurantCard getLastCardInfo() {
         return prevCard;
     }
 
@@ -63,13 +60,13 @@ public class btnFragment extends Fragment {
                         .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
                         .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view));
 //        for(Profile profile : Utils.loadProfiles(getActivity().getApplicationContext())){
-//            mSwipeView.addView(new TinderCard(mContext, profile, mSwipeView));
+//            mSwipeView.addView(new RestaurantCard(mContext, profile, mSwipeView));
 //        }
 
         try {
             JSONArray testArr = new JSONArray(apiResult);
             for(Profile profile: Utils.loadProfilesFromAPI(testArr)) {
-                mSwipeView.addView(new TinderCard(mContext, profile, mSwipeView));
+                mSwipeView.addView(new RestaurantCard(mContext, profile, mSwipeView));
             }
         }catch(JSONException e ) {
             Log.d(TAG, "oops");
