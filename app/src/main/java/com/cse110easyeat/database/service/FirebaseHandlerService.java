@@ -54,8 +54,12 @@ public class FirebaseHandlerService implements DatabaseHandlerService {
                     if (dataSnapshot.child(userId).exists()) {
                         User userFound = dataSnapshot.child(userId).getValue(User.class);
                         dbListener.getResult(userFound);
+                    } else {
+                        dbListener.getResult(null);
+                        Log.d(TAG, " No users found with that email");
                     }
                 } else {
+                    dbListener.getResult(null);
                     Log.d(TAG, "onDataChange of query " + "Snapshot does not exists");
                 }
             }
