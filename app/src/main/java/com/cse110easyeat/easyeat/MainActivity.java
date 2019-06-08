@@ -142,6 +142,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Function that checks the backstack to control the fragments on the backstack. It
+     * will only pop the fragment from the backstack if there is more than one fragment
+     * on the backstack, which means that there is another fragment that
+     * exists before the current fragment
+     */
     @Override
     public void onBackPressed() {
         int backStackCount = getSupportFragmentManager().getBackStackEntryCount();

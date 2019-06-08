@@ -100,24 +100,14 @@ public class btnFragment extends Fragment {
         view.findViewById(R.id.acceptBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!restaurantList.isEmpty()) {
-                    final Profile lastProfile = restaurantList.get(0);
-                    mSwipeView.doSwipe(false);
-                    restaurantList.add(0, lastProfile);
-                } else {
-                    mSwipeView.doSwipe(false);
-                }
+                swipeAndUpdateList();
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 // Replace the contents of the container with the new fragment
                 ft.replace(R.id.mainFragment, new infoFragment());
 
                 getActivity().getSupportFragmentManager().beginTransaction();
 
-                // TODO: TRY CALLING THE GETCARD HERE TURN IT TO JSON, PASS THE JASON AS ARGS
-                // TODO: add on backstackchangedlistener |
                 ft.addToBackStack(null);
-                // or ft.add(R.id.your_placeholder, new FooFragment());
-                // Complete the changes added above
                 ft.commit();
 
             }
@@ -126,13 +116,7 @@ public class btnFragment extends Fragment {
         view.findViewById(R.id.moreInfo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!restaurantList.isEmpty()) {
-                    final Profile lastProfile = restaurantList.get(0);
-                    mSwipeView.doSwipe(false);
-                    restaurantList.add(0, lastProfile);
-                } else {
-                    mSwipeView.doSwipe(false);
-                }
+                swipeAndUpdateList();
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 // Replace the contents of the container with the new fragment
                 ft.replace(R.id.mainFragment, new infoFragment());
@@ -143,8 +127,6 @@ public class btnFragment extends Fragment {
                 // TODO: TRY CALLING THE GETCARD HERE TURN IT TO JSON, PASS THE JASON AS ARGS
                 // TODO: add on backstackchangedlistener |
                 ft.addToBackStack(null);
-                // or ft.add(R.id.your_placeholder, new FooFragment());
-                // Complete the changes added above
                 ft.commit();
             }
         });
@@ -185,5 +167,20 @@ public class btnFragment extends Fragment {
             Log.d(TAG, "JSON READING EXCEPTION: " + e.getMessage());
         }
         return restaurantProfiles.toString();
+    }
+
+    /**
+     * A function for a workaround to retain card information when user press
+     * the back button. This is in conjunction with the addition of the removal
+     * of the last element from the list in RestaurantCard's onSwipe()
+     */
+    private void swipeAndUpdateList() {
+        if (!restaurantList.isEmpty()) {
+            final Profile lastProfile = restaurantList.get(0);
+            mSwipeView.doSwipe(false);
+            restaurantList.add(0, lastProfile);
+        } else {
+            mSwipeView.doSwipe(false);
+        }
     }
 }
