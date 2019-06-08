@@ -80,48 +80,55 @@ public class inputFragment extends Fragment  {
             final JSONObject jsonResult = new JSONObject(apiResult);
             JSONArray resultsArr = jsonResult.getJSONArray("results");
             Log.d(TAG, "parsed result array: \n" + resultsArr.toString());
+
             // TODO: EXTRACT THE RATING, NAME, DISTANCE, IMAGE URL
             // TODO: USE DISTANCE MATRIX API TO GET DISTANCE
             // TODO: EXTRACT FORMATED ADDRESS FIELD
             // TODO: GET THE PLACE_ID
             for (int i = 0; i < resultsArr.length(); i++) {
                 Log.d(TAG, "Results length: " + resultsArr.length());
-                JSONObject restaurantRes = resultsArr.getJSONObject(i);
+
                 // TODO: figure out how to get distance
-
-                String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
-
-                String height = "220";
-                String width = "150";
-
-                String address = restaurantRes.getString("formatted_address");
-                String priceLevel = restaurantRes.getString("price_level");
-                String priceIcon = "";
                 try {
+                    String height = "220";
+                    String width = "150";
+
+                    JSONObject restaurantRes = resultsArr.getJSONObject(i);
+                    String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
+                    String address = restaurantRes.getString("formatted_address");
+                    String priceLevel = restaurantRes.getString("price_level");
+                    String priceIcon = "";
+
                     int price = Integer.parseInt(priceLevel);
                     for (int j = 0; j < price; j++) {
                         priceIcon += "$";
                     }
+
+                    jsonResult.put("address", address);
+                    jsonResult.put("price", priceIcon);
+                    jsonResult.put("distance", "3" + " miles");
+                    jsonResult.put("rating", restaurantRes.getString("rating"));
+                    jsonResult.put("name", restaurantRes.getString("name"));
+
+                    String placeId = restaurantRes.getString("place_id");
+                    String totalNumRatings = restaurantRes.getString("user_ratings_total");
+
+                    String imageURL = generateImageURL(photoRef, height, width);
+                    float currentLat = 32.8801f;
+                    float currentLong = -117.2340f;
+
+                    jsonResult.put("url", imageURL);
+                    Log.d(TAG, "json res: \n" + jsonResult.toString());
+                    String distanceURL = generateDistanceURL(currentLat, currentLong, placeId);
+                    arrToWrite.put(jsonResult.toString());
+
+                } catch (final JSONException e) {
+                    Log.d(TAG, "error found: " + e.getMessage());
+                    continue;
                 } catch (NumberFormatException e) {
                     Log.d(TAG, "Weird result from aPI");
                 }
-
-                jsonResult.put("address", address);
-                jsonResult.put("price", priceIcon);
-                jsonResult.put("distance", "3" + " miles");
-                jsonResult.put("rating", restaurantRes.getString("rating"));
-                jsonResult.put("name", restaurantRes.getString("name"));
-
-                String placeId = restaurantRes.getString("place_id");
-                String totalNumRatings = restaurantRes.getString("user_ratings_total");
-
-                String imageURL = generateImageURL(photoRef, height, width);
-                float currentLat = 32.8801f;
-                float currentLong = -117.2340f;
-
-                jsonResult.put("url", imageURL);
-                Log.d(TAG, "json res: \n" + jsonResult.toString());
-                String distanceURL = generateDistanceURL(currentLat, currentLong, placeId);
+            }
 
                 // USE THIS TO GET DISTANCE
 //                networkManager.postRequestAndReturnString(distanceURL, new NetworkListener<String>() {
@@ -131,13 +138,10 @@ public class inputFragment extends Fragment  {
 //                        arrToWrite.put(jsonResult.toString());
 //                    }
 //                });
-//                arrToWrite.put(jsonResult.toString());
-                arrToWrite.put(jsonResult.toString());
-            }
-
-        } catch (final JSONException e) {
-            Log.d(TAG, "Error in parsing the api results" + e.getMessage());
+        } catch( final JSONException e ){
+            Log.d(TAG, "error found: " + e.getMessage());
         }
+
         return arrToWrite;
     }
 
