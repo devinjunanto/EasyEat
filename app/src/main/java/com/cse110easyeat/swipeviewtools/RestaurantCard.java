@@ -46,7 +46,6 @@ public class RestaurantCard {
         Glide.with(mContext).load(mProfile.getImageUrl()).into(profileImageView);
         nameAgeTxt.setText(mProfile.getName() + "\nRating: " + mProfile.getRestaurantRating());
         locationNameTxt.setText("Price: " + mProfile.getPrice());
-//        btnFragment.setLastCardInfo(this);
     }
 
     @SwipeOut
@@ -54,6 +53,7 @@ public class RestaurantCard {
         Log.d("EVENT", "onSwipedOut");
         mSwipeView.addView(this);
         btnFragment.setLastCardInfo(this);
+        btnFragment.removeRestaurant(this.getmProfile());
     }
 
     @SwipeCancelState

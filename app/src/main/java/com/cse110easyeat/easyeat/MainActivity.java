@@ -141,4 +141,14 @@ public class MainActivity extends AppCompatActivity {
             userFullName.setText(data.getStringExtra("name"));
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        int backStackCount = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (backStackCount > 0) {
+            super.onBackPressed();
+           // getSupportFragmentManager().popBackStack();
+        }
+    }
 }

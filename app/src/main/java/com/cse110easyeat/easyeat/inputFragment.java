@@ -221,10 +221,14 @@ public class inputFragment extends Fragment  {
                                             fragClass.setArguments(bundle);
 
                                             ft.replace(R.id.mainFragment, fragClass);
+                                            ft.addToBackStack(null);
+                                            if (btnFragment.restaurantList != null) {
+                                                btnFragment.restaurantList.clear();
+                                            }
                                             progressCircle.hide();
                                             progressCircle.dismiss();
                                             ft.commit();
-                                            }
+                                        }
                                     });
                                 }
                             }
@@ -289,6 +293,4 @@ public class inputFragment extends Fragment  {
     private void requestPermission(){
         ActivityCompat.requestPermissions(getActivity(), new String[]{ACCESS_FINE_LOCATION}, 1);
     }
-
-
 }

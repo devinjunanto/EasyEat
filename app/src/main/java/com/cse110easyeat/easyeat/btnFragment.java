@@ -19,6 +19,11 @@ import com.mindorks.placeholderview.SwipePlaceHolderView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 
 public class btnFragment extends Fragment {
@@ -27,6 +32,7 @@ public class btnFragment extends Fragment {
     private final String TAG = "btnFragment";
 
     public static RestaurantCard prevCard;
+    public static List<Profile> restaurantList;
 
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
@@ -43,7 +49,14 @@ public class btnFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        apiResult = this.getArguments().getString("data");
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            apiResult = savedInstanceState.getString("profiles");
+            Log.d(TAG, "profiles saved: " + apiResult);
+        } else {
+            apiResult = this.getArguments().getString("data");
+        }
+
         return inflater.inflate(R.layout.activity_card, container, false);
     }
 
@@ -64,11 +77,16 @@ public class btnFragment extends Fragment {
 //        }
 
         try {
-            JSONArray testArr = new JSONArray(apiResult);
-            for(Profile profile: Utils.loadProfilesFromAPI(testArr)) {
+            if (restaurantList == null || restaurantList.isEmpty() ) {
+                restaurantList = new ArrayList<Profile>();
+                JSONArray testArr = new JSONArray(apiResult);
+                restaurantList = Utils.loadProfilesFromAPI(testArr);
+            }
+
+            for (Profile profile : restaurantList) {
                 mSwipeView.addView(new RestaurantCard(mContext, profile, mSwipeView));
             }
-        }catch(JSONException e ) {
+        } catch(JSONException e ) {
             Log.d(TAG, "oops");
         }
 
@@ -82,7 +100,13 @@ public class btnFragment extends Fragment {
         view.findViewById(R.id.acceptBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSwipeView.doSwipe(false);
+                if (!restaurantList.isEmpty()) {
+                    final Profile lastProfile = restaurantList.get(0);
+                    mSwipeView.doSwipe(false);
+                    restaurantList.add(0, lastProfile);
+                } else {
+                    mSwipeView.doSwipe(false);
+                }
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 // Replace the contents of the container with the new fragment
                 ft.replace(R.id.mainFragment, new infoFragment());
@@ -95,13 +119,20 @@ public class btnFragment extends Fragment {
                 // or ft.add(R.id.your_placeholder, new FooFragment());
                 // Complete the changes added above
                 ft.commit();
+
             }
         });
 
         view.findViewById(R.id.moreInfo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSwipeView.doSwipe(false);
+                if (!restaurantList.isEmpty()) {
+                    final Profile lastProfile = restaurantList.get(0);
+                    mSwipeView.doSwipe(false);
+                    restaurantList.add(0, lastProfile);
+                } else {
+                    mSwipeView.doSwipe(false);
+                }
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 // Replace the contents of the container with the new fragment
                 ft.replace(R.id.mainFragment, new infoFragment());
@@ -119,23 +150,40 @@ public class btnFragment extends Fragment {
         });
     }
 
-    // Overriding the methods to save instances of fragments
-//    @Override
-//    public void onActivityCreated(Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        if (savedInstanceState != null) {
-//            // NEED TO LOAD THE ARRAY HERE
-//
-//            //Restore the fragment's state here
-//        }
-//    }
-//
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        //Save the fragment's state here
-//    }
+    public static List<Profile> getRestaurantList() {
+        return restaurantList;
+    }
 
+    public static void removeRestaurant(Profile restaurantToRemove) {
+        restaurantList.remove(restaurantToRemove);
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i(TAG, "Hello there, im saving");
+        String jsonProfiles = convertListToJSONArrayString(restaurantList);
+        Log.i(TAG, "saving " + jsonProfiles);
+        outState.putString("profiles", jsonProfiles);
+    }
+
+    private String convertListToJSONArrayString(List<Profile> restaurantProfiles) {
+        try {
+            JSONArray restaurantProfileArr = new JSONArray();
+            final JSONObject restaurantProfile = new JSONObject();
+            for(Profile profile: restaurantList) {
+                restaurantProfile.put("name", profile.getName());
+                restaurantProfile.put("url", profile.getImageUrl());
+                restaurantProfile.put("rating", profile.getRestaurantRating());
+                restaurantProfile.put("distance", profile.getDistanceFromCurLoc());
+                restaurantProfile.put("address", profile.getAddress());
+                restaurantProfile.put("price", profile.getPrice());
+                restaurantProfile.put("distanceURL", profile.getDistanceURL());
+                restaurantProfileArr.put(restaurantProfile.toString());
+            }
+        } catch (JSONException e) {
+            Log.d(TAG, "JSON READING EXCEPTION: " + e.getMessage());
+        }
+        return restaurantProfiles.toString();
+    }
 }
