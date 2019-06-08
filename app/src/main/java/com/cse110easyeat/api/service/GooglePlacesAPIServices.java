@@ -28,12 +28,12 @@ public class GooglePlacesAPIServices implements APIHandlerService {
                 latitude, longitude, radius);
 
         if (minPrice > 0 && minPrice <= 4) {
-            url += "&minPrice=";
+            url += "&minprice=";
             url += minPrice;
         }
 
         if (maxPrice > 0 && maxPrice <= 4) {
-            url += "&maxPrice=";
+            url += "&maxprice=";
             url += maxPrice;
         }
 

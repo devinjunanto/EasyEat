@@ -89,6 +89,7 @@ public class inputFragment extends Fragment  {
                 Log.d(TAG, "Results length: " + resultsArr.length());
 
                 // TODO: figure out how to get distance
+                // TODO: IMPORTANT SOME API FIELDS MIGHT BE MISSING
                 try {
                     String height = "220";
                     String width = "150";
