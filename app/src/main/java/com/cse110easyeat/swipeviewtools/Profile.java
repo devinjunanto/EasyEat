@@ -29,6 +29,10 @@ public class Profile {
     @Expose
     private String price;
 
+    @SerializedName("distanceURL")
+    @Expose
+    private String distanceURL;
+
     // Rename the functions
     public String getName() {
         return name;
@@ -49,4 +53,6 @@ public class Profile {
     public String getAddress() { return address; }
 
     public String getPrice() {return price; }
+
+    public String getDistanceURL() {return distanceURL;}
 }

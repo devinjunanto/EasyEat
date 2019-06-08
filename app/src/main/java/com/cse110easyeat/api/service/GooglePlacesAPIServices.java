@@ -20,7 +20,7 @@ public class GooglePlacesAPIServices implements APIHandlerService {
     }
 
     public String generateAPIQueryURL(String queryString, int minPrice, int maxPrice,
-                                      float latitude, float longitude, float radius) {
+                                      double latitude, double longitude, float radius) {
         String result = "";
         /* Replace whitespace with plus buttons */
         String modifiedQueryString = queryString.replaceAll("\\s+","+");

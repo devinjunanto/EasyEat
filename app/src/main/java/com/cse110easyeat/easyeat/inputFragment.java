@@ -26,6 +26,9 @@ import android.widget.Toast;
 import com.cse110easyeat.api.service.GooglePlacesAPIServices;
 import com.cse110easyeat.network.listener.NetworkListener;
 import com.cse110easyeat.network.manager.NetworkVolleyManager;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 
@@ -41,6 +44,7 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Locale;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.android.volley.VolleyLog.TAG;
 
 public class inputFragment extends Fragment  {
@@ -60,8 +64,7 @@ public class inputFragment extends Fragment  {
     private NetworkVolleyManager networkManager;
     private GooglePlacesAPIServices apiHelper;
 
-//    private LocationManager locationManager;
-//    private LocationListener tracker;
+    private FusedLocationProviderClient locationClient;
 
     // TODO: WHY IS IT NOT ENDING
     // TODO: IMAGE IS STILL A BIT TOO LARGE
@@ -74,7 +77,8 @@ public class inputFragment extends Fragment  {
      * @param apiResult - result from api call
      * @return a JSONArray that contains the parsed information corresponding to the Profile class
      */
-    private JSONArray writeDataToJsonFile(String apiResult) {
+    private JSONArray writeDataToJsonFile(String apiResult, final double latitude,
+                                          final double longitude) {
         final JSONArray arrToWrite = new JSONArray();
         try {
             final JSONObject jsonResult = new JSONObject(apiResult);
@@ -115,12 +119,11 @@ public class inputFragment extends Fragment  {
                     String totalNumRatings = restaurantRes.getString("user_ratings_total");
 
                     String imageURL = generateImageURL(photoRef, height, width);
-                    float currentLat = 32.8801f;
-                    float currentLong = -117.2340f;
 
                     jsonResult.put("url", imageURL);
                     Log.d(TAG, "json res: \n" + jsonResult.toString());
-                    String distanceURL = generateDistanceURL(currentLat, currentLong, placeId);
+                    String distanceURL = generateDistanceURL(latitude, longitude, placeId);
+                    jsonResult.put("distanceURL", distanceURL);
                     arrToWrite.put(jsonResult.toString());
 
                 } catch (final JSONException e) {
@@ -149,27 +152,39 @@ public class inputFragment extends Fragment  {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        requestPermission();
         return inflater.inflate(R.layout.input_layout, container, false);
     }
 
-    // TODO: GET LOCATION
+    /**
+     * Function called when the fragment view is created.
+     *
+     * MAIN CONCERNS: CALLBACK HELL | REFACTOR WITH LIVEVIEW TO PREVENT UI THREAD BLOCK
+     * @param view
+     * @param savedInstanceState
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         //super.onViewCreated(view, savedInstanceState);
-        // TODO: LOCATION CHECK (THEY ARE ASYNC)
-//        checkLocationPermissions();
-//        getLocation();
-
-
         progressCircle = new ProgressDialog(getActivity());
 
         networkManager = NetworkVolleyManager.getInstance(getContext());
         apiHelper = new GooglePlacesAPIServices();
         Button btn = (Button) view.findViewById(R.id.submitButton);
         btn.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * The callback function first checks whether the user enables permission.
+             * The function will then try to get the latest user's location and on success
+             * it will make an api call that will find the restaurants that are on a certain
+             * radius to the users
+             *
+             * @param v
+             */
             @Override
             public void onClick(View v) {
                 // DO THE API CALL
+                requestPermission();
                 progressCircle.setMessage("Validating input fields...");
                 progressCircle.show();
                 if (validateInputFields()) {
@@ -178,33 +193,43 @@ public class inputFragment extends Fragment  {
                     Log.d(TAG, "Longitude: " + longitude);
                     Log.d(TAG, "Latitude: " + latitude);
 
-                    // TODO: HARD CODE COORDINATES
-                    String queryURL = apiHelper.generateAPIQueryURL("restaurant nearby", 1,
-                            budget, 32.8801f, -117.2340f, distance);
-                    networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
-                        @Override
-                        public void getResult(String result) {
-                            // write the results to a json file
-                            Log.d(TAG, "API RESULTS:\n" + result);
-                            JSONArray test = writeDataToJsonFile(result);
+                    locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+                    if (ActivityCompat.checkSelfPermission(getActivity(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        locationClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location != null) {
+                                    Log.d(TAG, "Location obtained: " + location.toString());
+                                    final Location curLocation = location;
+                                    String queryURL = apiHelper.generateAPIQueryURL("restaurant nearby", 1,
+                                            budget, curLocation.getLatitude(), curLocation.getLongitude(), distance);
+                                    networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
+                                        @Override
+                                        public void getResult(String result) {
+                                            // write the results to a json file
+                                            Log.d(TAG, "API RESULTS:\n" + result);
+                                            JSONArray test = writeDataToJsonFile(result,
+                                                    curLocation.getLatitude(), curLocation.getLongitude());
 
-                            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                            btnFragment fragClass = new btnFragment();
-                            /**
-                             * Pass in the parsed api results in to the infoFragment
-                             */
-                            Bundle bundle = new Bundle();
-                            bundle.putString("data", test.toString());
-                            fragClass.setArguments(bundle);
-                            // Replace the contents of the container with the new fragment
-                            ft.replace(R.id.mainFragment, fragClass);
-                            // or ft.add(R.id.your_placeholder, new FooFragment());
-                            // Complete the changes added above
-                            progressCircle.hide();
-                            progressCircle.dismiss();
-                            ft.commit();
-                        }
-                    });
+                                            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                                            btnFragment fragClass = new btnFragment();
+                                            /**
+                                             * Pass in the parsed api results in to the infoFragment
+                                             */
+                                            Bundle bundle = new Bundle();
+                                            bundle.putString("data", test.toString());
+                                            fragClass.setArguments(bundle);
+
+                                            ft.replace(R.id.mainFragment, fragClass);
+                                            progressCircle.hide();
+                                            progressCircle.dismiss();
+                                            ft.commit();
+                                            }
+                                    });
+                                }
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -245,32 +270,6 @@ public class inputFragment extends Fragment  {
         return true;
     }
 
-
-//    // START OF ATTEMPT TO GET LOCATION
-//    public void checkLocationPermissions() {
-//        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-//                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(),
-//                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//
-//            ActivityCompat.requestPermissions(getActivity(),
-//                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-//                            android.Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
-//        }
-//    }
-//
-//    public void getLocation() {
-//        try {
-//            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5, this);
-//        }
-//        catch(SecurityException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
-
     // TODO: REFACTOR THESE METHODS
     public String generateImageURL(String photoReference, String height, String width) {
         String imageURL = "https://maps.googleapis.com/maps/api/place/photo?key=%s&photoreference=%s&maxheight=%s&maxwidth=%s";
@@ -279,7 +278,7 @@ public class inputFragment extends Fragment  {
         return imageURL;
     }
 
-    public String generateDistanceURL(float currentLat, float currentLong, String destinationId) {
+    public String generateDistanceURL(double currentLat, double currentLong, String destinationId) {
         String distanceURL = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=%f,%f" +
                 "&destinations=place_id:%s&units=imperial&key=%s";
         distanceURL = String.format(distanceURL, currentLat, currentLong, destinationId,
@@ -287,36 +286,9 @@ public class inputFragment extends Fragment  {
         return distanceURL;
     }
 
-//    // TODO: IMPLEMENT GET LOCATION METHODS
-//    @Override
-//    public void onLocationChanged(Location location) {
-//        try {
-//            Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
-//            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//            longitude = (float)location.getLongitude();
-//            latitude =  (float)location.getLatitude();
-//
-////            locationText.setText(locationText.getText() + "\n"+addresses.get(0).getAddressLine(0)+", "+
-////                    addresses.get(0).getAddressLine(1)+", "+addresses.get(0).getAddressLine(2));
-//        } catch(Exception e) {
-//            Log.d(TAG, "Exception caught onLocationChanged");
-//        }
-//    }
-//
-//    @Override
-//    public void onStatusChanged(String provider, int status, Bundle extras) { }
-//
-//    @Override
-//    public void onProviderEnabled(String provider) {
-//        Log.d(TAG, "Location services and internet enabled");
-//        Toast.makeText(getActivity().getApplicationContext(), "Location Services enabled",
-//                Toast.LENGTH_SHORT).show();
-//    }
-//
-//    @Override
-//    public void onProviderDisabled(String provider) {
-//        Log.d(TAG, "Location services is not activated yet");
-//        Toast.makeText(getActivity().getApplicationContext(), "Enable location services",
-//                Toast.LENGTH_SHORT).show();
-//    }
+    private void requestPermission(){
+        ActivityCompat.requestPermissions(getActivity(), new String[]{ACCESS_FINE_LOCATION}, 1);
+    }
+
+
 }

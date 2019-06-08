@@ -162,4 +162,19 @@ public class LoginActivity extends Activity {
      * **/
     @Override
     public void onBackPressed() { }
+
+    /**
+     * Override onDestroy method to remove listeners and free memory
+     */
+    @Override
+    public void onDestroy() {
+        /**
+         * Set the listeners to null
+         * */
+        signUpLink.setOnClickListener(null);
+        forgetPasswordLink.setOnClickListener(null);
+        showPassword.setOnCheckedChangeListener(null);
+        loginButton.setOnClickListener(null);
+        super.onDestroy();
+    }
 }

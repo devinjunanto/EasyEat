@@ -152,4 +152,17 @@ public class SignupActivity extends Activity {
         }
         return true;
     }
+
+    /**
+     * Override onDestroy method to remove listeners and free memory
+     */
+    @Override
+    public void onDestroy() {
+        /**
+         * Set the listeners to null
+         * */
+        signUpButton.setOnClickListener(null);
+        loginLink.setOnClickListener(null);
+        super.onDestroy();
+    }
 }

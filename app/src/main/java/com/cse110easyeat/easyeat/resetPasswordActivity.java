@@ -82,4 +82,15 @@ public class resetPasswordActivity extends AppCompatActivity {
         });
     }
 
+
+    /**
+     * Override onDestroy method to remove listeners and free memory
+     */
+    public void onDestroy() {
+        /**
+         * Set the listeners to null
+         * */
+        resetButton.setOnClickListener(null);
+        super.onDestroy();
+    }
 }
