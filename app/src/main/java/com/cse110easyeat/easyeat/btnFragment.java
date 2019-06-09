@@ -58,6 +58,7 @@ public class btnFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        prevCard = null;
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             apiResult = savedInstanceState.getString("profiles");
@@ -65,6 +66,7 @@ public class btnFragment extends Fragment {
         } else {
             apiResult = this.getArguments().getString("data");
             desiredTravelTime = this.getArguments().getInt("desiredTime");
+            Log.d(TAG, " Arugments found: \n" + apiResult + "\n\n Time:" + desiredTravelTime);
         }
 
         return inflater.inflate(R.layout.activity_card, container, false);
@@ -124,7 +126,7 @@ public class btnFragment extends Fragment {
                     endOfList = true;
                     /** Get a new fragment that display an empty screen */
                     Toast.makeText(getContext(), "Ran out of restaurants to show. Please" +
-                            "review your preferences", Toast.LENGTH_SHORT).show();
+                            " review your preferences", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -133,15 +135,20 @@ public class btnFragment extends Fragment {
         view.findViewById(R.id.acceptBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                swipeAndUpdateList();
-                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                // Replace the contents of the container with the new fragment
-                ft.replace(R.id.mainFragment, new infoFragment());
+                if (prevCard != null || !restaurantList.isEmpty()) {
+                    swipeAndUpdateList();
+                    FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                    // Replace the contents of the container with the new fragment
+                    ft.replace(R.id.mainFragment, new infoFragment());
 
-                getActivity().getSupportFragmentManager().beginTransaction();
+                    getActivity().getSupportFragmentManager().beginTransaction();
 
-                ft.addToBackStack(null);
-                ft.commit();
+                    ft.addToBackStack(null);
+                    ft.commit();
+                } else {
+                    Toast.makeText(getContext(),"No restaurants were found for the currently set preferences",
+                            Toast.LENGTH_SHORT).show();
+                }
 
             }
         });

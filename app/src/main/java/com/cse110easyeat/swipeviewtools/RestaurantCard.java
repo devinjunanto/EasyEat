@@ -52,6 +52,7 @@ public class RestaurantCard {
     private void onSwipedOut(){
         Log.d("EVENT", "onSwipedOut");
         if (!btnFragment.getRestaurantList().isEmpty()) {
+            Log.d("Card: ", ""  + btnFragment.getRestaurantList().size());
             mSwipeView.addView(this);
             btnFragment.setLastCardInfo(this);
             btnFragment.removeRestaurant(this.getmProfile());

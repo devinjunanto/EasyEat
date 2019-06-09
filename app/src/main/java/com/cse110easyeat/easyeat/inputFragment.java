@@ -1,20 +1,14 @@
 package com.cse110easyeat.easyeat;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,25 +23,15 @@ import com.cse110easyeat.network.manager.NetworkVolleyManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static com.android.volley.VolleyLog.TAG;
 
 public class inputFragment extends Fragment {
     private final String TAG = "InputFragment";
@@ -57,7 +41,7 @@ public class inputFragment extends Fragment {
 
     private int budget;
     private int distance;
-    private int timeToWait;
+    private int timeToTravel;
     private float longitude;
     private float latitude;
 
@@ -104,11 +88,11 @@ public class inputFragment extends Fragment {
 
                     JSONObject restaurantRes = resultsArr.getJSONObject(i);
                     String placeId = restaurantRes.getString("place_id");
-                    if (dictionary.containsKey(placeId)) {
-                        continue;
-                    } else {
-                        dictionary.put(placeId, 0);
-                    }
+//                    if (dictionary.containsKey(placeId)) {
+//                        continue;
+//                    } else {
+//                        dictionary.put(placeId, 0);
+//                    }
 
                     String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
                     String address = restaurantRes.getString("vicinity");
@@ -168,8 +152,9 @@ public class inputFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         //super.onViewCreated(view, savedInstanceState);
+        locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         progressCircle = new ProgressDialog(getActivity());
-
+        requestPermission();
         networkManager = NetworkVolleyManager.getInstance(getContext());
         apiHelper = new GooglePlacesAPIServices();
         Button btn = (Button) view.findViewById(R.id.submitButton);
@@ -192,39 +177,53 @@ public class inputFragment extends Fragment {
                 if (validateInputFields()) {
                     // TODO: TESTING API CALL
                     progressCircle.setMessage("Finding Easiest Eats...");
-                    Log.d(TAG, "Longitude: " + longitude);
-                    Log.d(TAG, "Latitude: " + latitude);
+                    //locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+                    Log.d(TAG, " Permission is okay");
+                    if (ActivityCompat.checkSelfPermission(getActivity(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        Log.d(TAG, " Permission is okay");
+                        locationClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location != null) {
+                                    Log.d(TAG, "Location obtained: " + location.toString());
+                                    Log.d(TAG, "Longitude: " + location.getLongitude());
+                                    Log.d(TAG, "Latitude: " + location.getLatitude());
+                                    final Location curLocation = location;
+                                    String queryURL = apiHelper.generateAPIQueryURL(1,
+                                            budget, curLocation.getLatitude(), curLocation.getLongitude(), distance);
+                                    networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
+                                        @Override
+                                        public void getResult(String result) {
+                                            // write the results to a json file
+                                            Log.d(TAG, "API RESULTS:\n" + result);
+                                            JSONArray test = writeDataToJsonFile(result,
+                                                    curLocation.getLatitude(), curLocation.getLongitude());
 
-                    String queryURL = apiHelper.generateAPIQueryURL(1,
-                            budget, 32.8801, -117.2340, distance);
-                    networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
-                        @Override
-                        public void getResult(String result) {
-                            // write the results to a json file
-                            // Log.d(TAG, "API RESULTS:\n" + result);
-                            JSONArray test = writeDataToJsonFile(result,
-                                    32.8801, -117.2340);
+                                            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                                            btnFragment fragClass = new btnFragment();
+                                            /**
+                                             * Pass in the parsed api results in to the infoFragment
+                                             */
+                                            Bundle bundle = new Bundle();
+                                            bundle.putString("data", test.toString());
+                                            Log.d(TAG, " desiredTime: " + timeToTravel);
+                                            bundle.putInt("desiredTime", timeToTravel);
+                                            fragClass.setArguments(bundle);
 
-                            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                            btnFragment fragClass = new btnFragment();
-                            /**
-                             * Pass in the parsed api results in to the infoFragment
-                             */
-                            Bundle bundle = new Bundle();
-                            bundle.putString("data", test.toString());
-                            bundle.putInt("desiredTime", timeToWait);
-                            fragClass.setArguments(bundle);
-
-                            ft.replace(R.id.mainFragment, fragClass);
-                            ft.addToBackStack(null);
-                            if (btnFragment.restaurantList != null) {
-                                btnFragment.restaurantList.clear();
+                                            ft.replace(R.id.mainFragment, fragClass);
+                                            progressCircle.hide();
+                                            progressCircle.dismiss();
+                                            ft.commit();
+                                        }
+                                    });
+                                } else {
+                                    Log.d(TAG, " What location, can't find any");
+                                }
                             }
-                            progressCircle.hide();
-                            progressCircle.dismiss();
-                            ft.commit();
-                        }
-                    });
+                        });
+                    } else {
+                        Log.d(TAG, "Location Services is fucked");
+                    }
                 }
             }
         });
@@ -255,7 +254,7 @@ public class inputFragment extends Fragment {
                 return false;
             }
             distance = Integer.parseInt(distanceField.getText().toString());
-            timeToWait = Integer.parseInt(timeField.getText().toString());
+            timeToTravel = Integer.parseInt(timeField.getText().toString());
         } catch (NumberFormatException e) {
             progressCircle.hide();
             Toast.makeText(getActivity(), "Please enter integers", Toast.LENGTH_SHORT).show();
