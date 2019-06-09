@@ -7,10 +7,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.cse110easyeat.network.listener.NetworkListener;
+import com.cse110easyeat.network.manager.NetworkVolleyManager;
 import com.cse110easyeat.swipeviewtools.Profile;
 import com.cse110easyeat.swipeviewtools.RestaurantCard;
 import com.cse110easyeat.swipeviewtools.Utils;
@@ -34,9 +39,12 @@ public class btnFragment extends Fragment {
     public static RestaurantCard prevCard;
     public static List<Profile> restaurantList;
 
+    private NetworkVolleyManager networkManager;
+
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
     private String apiResult;
+    private int desiredTravelTime;
 
     public static void setLastCardInfo(RestaurantCard lastCard) {
         prevCard = lastCard;
@@ -55,6 +63,7 @@ public class btnFragment extends Fragment {
             Log.d(TAG, "profiles saved: " + apiResult);
         } else {
             apiResult = this.getArguments().getString("data");
+            desiredTravelTime = this.getArguments().getInt("desiredTime");
         }
 
         return inflater.inflate(R.layout.activity_card, container, false);
@@ -63,7 +72,10 @@ public class btnFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mSwipeView = (SwipePlaceHolderView)view.findViewById(R.id.swipeView);
+        mSwipeView.unlockViews();
         mContext = getActivity().getApplicationContext();
+
+        networkManager = NetworkVolleyManager.getInstance(getContext());
 
         mSwipeView.getBuilder()
                 .setDisplayViewCount(3)
@@ -83,8 +95,18 @@ public class btnFragment extends Fragment {
                 restaurantList = Utils.loadProfilesFromAPI(testArr);
             }
 
-            for (Profile profile : restaurantList) {
-                mSwipeView.addView(new RestaurantCard(mContext, profile, mSwipeView));
+            for (final Profile profile : restaurantList) {
+                networkManager.postRequestAndReturnString(profile.getDistanceURL(), new NetworkListener<String>() {
+                    @Override
+                    public void getResult(String result) {
+                        Pair<String, Integer> parsedRes = extractDistanceAndTimeInMinutes(result);
+                        if (parsedRes.second <= desiredTravelTime) {
+                            mSwipeView.addView(new RestaurantCard(mContext, profile, mSwipeView));
+                        } else {
+                            restaurantList.remove(profile);
+                        }
+                    }
+                });
             }
         } catch(JSONException e ) {
             Log.d(TAG, "oops");
@@ -94,6 +116,14 @@ public class btnFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mSwipeView.doSwipe(false);
+                Log.d(TAG, "length of restaurants: " + restaurantList.size());
+                if (restaurantList.isEmpty()) {
+                    mSwipeView.lockViews();
+                    /** Get a new fragment that display an empty screen */
+                    Toast.makeText(getContext(), "Ran out of restaurants to show. Please" +
+                            "review your preferences", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
@@ -182,5 +212,30 @@ public class btnFragment extends Fragment {
         } else {
             mSwipeView.doSwipe(false);
         }
+    }
+
+    public Pair<String, Integer> extractDistanceAndTimeInMinutes(String apiResult) {
+        String distResult = "Unknown";
+        int timeRes = 0;
+
+        try {
+            final JSONObject jsonResult = new JSONObject(apiResult);
+            JSONArray apiJSONResult = jsonResult.getJSONArray("rows");
+
+            JSONArray distTimeRes = apiJSONResult.getJSONObject(0).getJSONArray("elements");
+            JSONObject distance = distTimeRes.getJSONObject(0).getJSONObject("distance");
+            JSONObject duration = distTimeRes.getJSONObject(0).getJSONObject("duration");
+
+            distResult = distance.getString("text");
+            String timeResult = duration.getString("value");
+            int secondsVal = Integer.parseInt(timeResult);
+            timeRes = secondsVal / 60;
+            if (secondsVal % 60 != 0) {
+                timeRes += 1;
+            }
+        } catch(JSONException e) {
+            Log.d(TAG, "JSON Exception: " + e.getMessage());
+        }
+        return new Pair(distResult, timeRes);
     }
 }

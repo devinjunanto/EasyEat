@@ -41,8 +41,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.android.volley.VolleyLog.TAG;
@@ -81,6 +83,7 @@ public class inputFragment extends Fragment {
                                           final double longitude) {
         final JSONArray arrToWrite = new JSONArray();
         try {
+            Map<String, Integer> dictionary = new HashMap<>();
             final JSONObject jsonResult = new JSONObject(apiResult);
             JSONArray resultsArr = jsonResult.getJSONArray("results");
             Log.d(TAG, "parsed result array: \n" + resultsArr.toString());
@@ -99,6 +102,13 @@ public class inputFragment extends Fragment {
                     String width = "150";
 
                     JSONObject restaurantRes = resultsArr.getJSONObject(i);
+                    String placeId = restaurantRes.getString("place_id");
+                    if (dictionary.containsKey(placeId)) {
+                        continue;
+                    } else {
+                        dictionary.put(placeId, 0);
+                    }
+
                     String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
                     String address = restaurantRes.getString("vicinity");
                     String priceLevel = restaurantRes.getString("price_level");
@@ -115,7 +125,6 @@ public class inputFragment extends Fragment {
                     jsonResult.put("rating", restaurantRes.getString("rating"));
                     jsonResult.put("name", restaurantRes.getString("name"));
 
-                    String placeId = restaurantRes.getString("place_id");
                     String totalNumRatings = restaurantRes.getString("user_ratings_total");
 
                     String imageURL = generateImageURL(photoRef, height, width);
@@ -219,6 +228,7 @@ public class inputFragment extends Fragment {
                                              */
                                             Bundle bundle = new Bundle();
                                             bundle.putString("data", test.toString());
+                                            bundle.putInt("desiredTime", timeToWait);
                                             fragClass.setArguments(bundle);
 
                                             ft.replace(R.id.mainFragment, fragClass);
