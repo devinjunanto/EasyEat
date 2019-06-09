@@ -39,6 +39,7 @@ public class btnFragment extends Fragment {
     public static RestaurantCard prevCard;
     public static List<Profile> restaurantList;
 
+    private boolean endOfList = false;
     private NetworkVolleyManager networkManager;
 
     private SwipePlaceHolderView mSwipeView;
@@ -72,7 +73,7 @@ public class btnFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mSwipeView = (SwipePlaceHolderView)view.findViewById(R.id.swipeView);
-        mSwipeView.unlockViews();
+        //mSwipeView.unlockViews();
         mContext = getActivity().getApplicationContext();
 
         networkManager = NetworkVolleyManager.getInstance(getContext());
@@ -102,7 +103,8 @@ public class btnFragment extends Fragment {
                         Pair<String, Integer> parsedRes = extractDistanceAndTimeInMinutes(result);
                         if (parsedRes.second <= desiredTravelTime) {
                             mSwipeView.addView(new RestaurantCard(mContext, profile, mSwipeView));
-                        } else {
+                        }
+                        else {
                             restaurantList.remove(profile);
                         }
                     }
@@ -119,6 +121,7 @@ public class btnFragment extends Fragment {
                 Log.d(TAG, "length of restaurants: " + restaurantList.size());
                 if (restaurantList.isEmpty()) {
                     mSwipeView.lockViews();
+                    endOfList = true;
                     /** Get a new fragment that display an empty screen */
                     Toast.makeText(getContext(), "Ran out of restaurants to show. Please" +
                             "review your preferences", Toast.LENGTH_SHORT).show();
@@ -140,24 +143,6 @@ public class btnFragment extends Fragment {
                 ft.addToBackStack(null);
                 ft.commit();
 
-            }
-        });
-
-        view.findViewById(R.id.moreInfo).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                swipeAndUpdateList();
-                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                // Replace the contents of the container with the new fragment
-                ft.replace(R.id.mainFragment, new infoFragment());
-
-
-                getActivity().getSupportFragmentManager().beginTransaction();
-
-                // TODO: TRY CALLING THE GETCARD HERE TURN IT TO JSON, PASS THE JASON AS ARGS
-                // TODO: add on backstackchangedlistener |
-                ft.addToBackStack(null);
-                ft.commit();
             }
         });
     }
@@ -209,8 +194,6 @@ public class btnFragment extends Fragment {
             final Profile lastProfile = restaurantList.get(0);
             mSwipeView.doSwipe(false);
             restaurantList.add(0, lastProfile);
-        } else {
-            mSwipeView.doSwipe(false);
         }
     }
 

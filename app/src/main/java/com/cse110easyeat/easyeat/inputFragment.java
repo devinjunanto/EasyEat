@@ -72,6 +72,7 @@ public class inputFragment extends Fragment {
     // TODO: IMAGE IS STILL A BIT TOO LARGE
     // TODO: onPostExecute
 
+    // 32.8801° N, 117.2340° W
     /**
      * This function is used to call the GooglePlacesAPI and parse the result into a JSONArray
      * to be used to render information with the SwipePlaceHolderView class
@@ -142,15 +143,6 @@ public class inputFragment extends Fragment {
                     Log.d(TAG, "Weird result from aPI");
                 }
             }
-
-            // USE THIS TO GET DISTANCE
-//                networkManager.postRequestAndReturnString(distanceURL, new NetworkListener<String>() {
-//                    @Override
-//                    public void getResult(String result) {
-//                        Log.d(TAG, "Distance API Call result: \n" + result);
-//                        arrToWrite.put(jsonResult.toString());
-//                    }
-//                });
         } catch (final JSONException e) {
             Log.d(TAG, "error found: " + e.getMessage());
         }
@@ -203,48 +195,36 @@ public class inputFragment extends Fragment {
                     Log.d(TAG, "Longitude: " + longitude);
                     Log.d(TAG, "Latitude: " + latitude);
 
-                    locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-                    if (ActivityCompat.checkSelfPermission(getActivity(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        locationClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                if (location != null) {
-                                    Log.d(TAG, "Location obtained: " + location.toString());
-                                    final Location curLocation = location;
-                                    String queryURL = apiHelper.generateAPIQueryURL(1,
-                                            budget, curLocation.getLatitude(), curLocation.getLongitude(), distance);
-                                    networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
-                                        @Override
-                                        public void getResult(String result) {
-                                            // write the results to a json file
-                                            Log.d(TAG, "API RESULTS:\n" + result);
-                                            JSONArray test = writeDataToJsonFile(result,
-                                                    curLocation.getLatitude(), curLocation.getLongitude());
+                    String queryURL = apiHelper.generateAPIQueryURL(1,
+                            budget, 32.8801, -117.2340, distance);
+                    networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
+                        @Override
+                        public void getResult(String result) {
+                            // write the results to a json file
+                            // Log.d(TAG, "API RESULTS:\n" + result);
+                            JSONArray test = writeDataToJsonFile(result,
+                                    32.8801, -117.2340);
 
-                                            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                                            btnFragment fragClass = new btnFragment();
-                                            /**
-                                             * Pass in the parsed api results in to the infoFragment
-                                             */
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString("data", test.toString());
-                                            bundle.putInt("desiredTime", timeToWait);
-                                            fragClass.setArguments(bundle);
+                            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                            btnFragment fragClass = new btnFragment();
+                            /**
+                             * Pass in the parsed api results in to the infoFragment
+                             */
+                            Bundle bundle = new Bundle();
+                            bundle.putString("data", test.toString());
+                            bundle.putInt("desiredTime", timeToWait);
+                            fragClass.setArguments(bundle);
 
-                                            ft.replace(R.id.mainFragment, fragClass);
-                                            ft.addToBackStack(null);
-                                            if (btnFragment.restaurantList != null) {
-                                                btnFragment.restaurantList.clear();
-                                            }
-                                            progressCircle.hide();
-                                            progressCircle.dismiss();
-                                            ft.commit();
-                                        }
-                                    });
-                                }
+                            ft.replace(R.id.mainFragment, fragClass);
+                            ft.addToBackStack(null);
+                            if (btnFragment.restaurantList != null) {
+                                btnFragment.restaurantList.clear();
                             }
-                        });
-                    }
+                            progressCircle.hide();
+                            progressCircle.dismiss();
+                            ft.commit();
+                        }
+                    });
                 }
             }
         });

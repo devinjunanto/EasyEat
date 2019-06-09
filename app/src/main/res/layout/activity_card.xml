@@ -25,15 +25,6 @@
             android:layout_height="50dp"
             android:layout_marginLeft="30dp"
             android:background="@drawable/ic_check" />
-
-
-        <Button android:id="@+id/moreInfo"
-        android:layout_width="80dp"
-        android:layout_height="55dp"
-        android:background="#FFF"
-        android:textColor="@color/colorPrimary"
-        android:layout_marginLeft="30dp"
-        android:text="More Info"/>
     </LinearLayout>
 
 
