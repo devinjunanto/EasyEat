@@ -53,7 +53,7 @@
             android:layout_below="@+id/linearLayout2"
             android:layout_centerHorizontal="true"
             android:ems="10"
-            android:hint="Enter distance in miles..."
+            android:hint="Enter search radius in miles..."
             android:inputType="number" />
 
         <Button

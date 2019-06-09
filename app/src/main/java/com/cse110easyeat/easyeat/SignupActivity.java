@@ -110,6 +110,8 @@ public class SignupActivity extends Activity {
                                     }
                                 }
                             });
+                } else {
+                    signupDialog.hide();
                 }
             }
         });

@@ -11,21 +11,24 @@ import android.util.Log;
 public class GooglePlacesAPIServices implements APIHandlerService {
     private NetworkVolleyManager requestManager;
     private static final String TAG = "GooglePlacesAPIServices";
+    private static final double milesConverter = 1609.34;
 
     private static final String apiRequestURL = "https://maps.googleapis.com/maps/api/place" +
-            "/textsearch/json?&query=%s&key=%s&location=%f,%f&radius=%f";
+            "/nearbysearch/json?location=%f,%f&radius=%f&keyword=food&type=restaurant&key=%s";
 
     public void initializeAPIClient(Context ctx) {
         requestManager = NetworkVolleyManager.getInstance(ctx);
     }
 
-    public String generateAPIQueryURL(String queryString, int minPrice, int maxPrice,
+    public String generateAPIQueryURL(int minPrice, int maxPrice,
                                       double latitude, double longitude, float radius) {
         String result = "";
         /* Replace whitespace with plus buttons */
-        String modifiedQueryString = queryString.replaceAll("\\s+","+");
-        String url = String.format(apiRequestURL, modifiedQueryString, BuildConfig.PLACES_API_KEY,
-                latitude, longitude, radius);
+        /** Convert miles to meters */
+        double meterRadius = radius * milesConverter;
+
+        String url = String.format(apiRequestURL, latitude, longitude,
+                meterRadius, BuildConfig.PLACES_API_KEY);
 
         if (minPrice > 0 && minPrice <= 4) {
             url += "&minprice=";
@@ -48,7 +51,7 @@ public class GooglePlacesAPIServices implements APIHandlerService {
                                     float latitude, float longitude, float radius) {
 
         String result = "";
-        String url = generateAPIQueryURL(queryString, minPrice, maxPrice, latitude, longitude, radius);
+        String url = generateAPIQueryURL(minPrice, maxPrice, latitude, longitude, radius);
         // TODO: Think of the flow
         requestManager.postRequestAndReturnString(url, new NetworkListener<String>() {
             @Override

@@ -47,7 +47,7 @@ import java.util.Locale;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.android.volley.VolleyLog.TAG;
 
-public class inputFragment extends Fragment  {
+public class inputFragment extends Fragment {
     private final String TAG = "InputFragment";
     private EditText budgetField;
     private EditText distanceField;
@@ -100,7 +100,7 @@ public class inputFragment extends Fragment  {
 
                     JSONObject restaurantRes = resultsArr.getJSONObject(i);
                     String photoRef = restaurantRes.getJSONArray("photos").getJSONObject(0).getString("photo_reference");
-                    String address = restaurantRes.getString("formatted_address");
+                    String address = restaurantRes.getString("vicinity");
                     String priceLevel = restaurantRes.getString("price_level");
                     String priceIcon = "";
 
@@ -134,7 +134,7 @@ public class inputFragment extends Fragment  {
                 }
             }
 
-                // USE THIS TO GET DISTANCE
+            // USE THIS TO GET DISTANCE
 //                networkManager.postRequestAndReturnString(distanceURL, new NetworkListener<String>() {
 //                    @Override
 //                    public void getResult(String result) {
@@ -142,7 +142,7 @@ public class inputFragment extends Fragment  {
 //                        arrToWrite.put(jsonResult.toString());
 //                    }
 //                });
-        } catch( final JSONException e ){
+        } catch (final JSONException e) {
             Log.d(TAG, "error found: " + e.getMessage());
         }
 
@@ -158,8 +158,9 @@ public class inputFragment extends Fragment  {
 
     /**
      * Function called when the fragment view is created.
-     *
+     * <p>
      * MAIN CONCERNS: CALLBACK HELL | REFACTOR WITH LIVEVIEW TO PREVENT UI THREAD BLOCK
+     *
      * @param view
      * @param savedInstanceState
      */
@@ -201,7 +202,7 @@ public class inputFragment extends Fragment  {
                                 if (location != null) {
                                     Log.d(TAG, "Location obtained: " + location.toString());
                                     final Location curLocation = location;
-                                    String queryURL = apiHelper.generateAPIQueryURL("restaurant nearby", 1,
+                                    String queryURL = apiHelper.generateAPIQueryURL(1,
                                             budget, curLocation.getLatitude(), curLocation.getLongitude(), distance);
                                     networkManager.postRequestAndReturnString(queryURL, new NetworkListener<String>() {
                                         @Override
@@ -290,7 +291,7 @@ public class inputFragment extends Fragment  {
         return distanceURL;
     }
 
-    private void requestPermission(){
+    private void requestPermission() {
         ActivityCompat.requestPermissions(getActivity(), new String[]{ACCESS_FINE_LOCATION}, 1);
     }
 }
